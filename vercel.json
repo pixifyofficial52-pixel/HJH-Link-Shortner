@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/([A-Z0-9]{6})",
+      "destination": "/index.html"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
