@@ -1,32 +1,83 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Links Management</title>
-    
-    <!-- App Icon -->
-    <link rel="icon" type="image/png" href="https://ik.imagekit.io/19imy4f1u/lite_1777560977588_frMe1_REC.png" />
-    <link rel="apple-touch-icon" href="https://ik.imagekit.io/19imy4f1u/lite_1777560977588_frMe1_REC.png" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>HJ-HACKER | URL Shortener</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                <span class="hj">HJ</span><span class="hacker">HACKER</span>
+            </div>
+            <p class="tagline">⚡ Enterprise URL Shortener ⚡</p>
+        </div>
 
-    <!-- Social Media / WhatsApp Preview -->
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="Secure Link Redirection" />
-    <meta property="og:description" content="Manage and redirect your links securely with custom animations and social gates." />
-    <meta property="og:image" content="https://ik.imagekit.io/19imy4f1u/lite_1777642331499_072V-Ui7ld.jpeg" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
+        <!-- Main Card -->
+        <div class="card">
+            <h1>Shorten Your <span class="highlight">Links</span></h1>
+            <p class="subtitle">Paste a long URL and get a short link instantly</p>
 
-    <!-- Twitter Preview -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Secure Link Redirection" />
-    <meta name="twitter:description" content="Manage and redirect your links securely with custom animations and social gates." />
-    <meta name="twitter:image" content="https://ik.imagekit.io/19imy4f1u/lite_1777561225399_yUcjK1Jzn.jpeg" />
-    <script type="module" crossorigin src="/assets/index.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index.css">
-  <link rel="manifest" href="/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/registerSW.js"></script></head>
-  <body>
-    <div id="root"></div>
-  </body>
+            <!-- URL Input Form -->
+            <div class="input-group">
+                <input type="url" id="longUrl" placeholder="https://example.com/very-long-url" class="url-input">
+                <div class="alias-group">
+                    <span class="domain">hj.os/</span>
+                    <input type="text" id="customCode" placeholder="custom" maxlength="15" class="alias-input">
+                </div>
+                <button id="shortenBtn" class="shorten-btn">⚡ Shorten</button>
+            </div>
+
+            <!-- Password Protection Toggle -->
+            <div class="toggle-group">
+                <label class="toggle">
+                    <input type="checkbox" id="passwordToggle">
+                    <span class="toggle-slider"></span>
+                    <span class="toggle-label">🔒 Password Protection</span>
+                </label>
+                <input type="password" id="password" placeholder="Enter password" class="password-input hidden" disabled>
+            </div>
+
+            <!-- Result Section -->
+            <div id="result" class="result hidden">
+                <div class="result-header">
+                    <span>✅ Link Created!</span>
+                    <button id="copyBtn" class="copy-btn">📋 Copy</button>
+                </div>
+                <div class="result-link" id="shortLink"></div>
+                <div id="qrCode" class="qr-code"></div>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loading" class="loading hidden">
+                <div class="spinner"></div>
+                <p>Creating your short link...</p>
+            </div>
+
+            <!-- Error Message -->
+            <div id="error" class="error hidden"></div>
+        </div>
+
+        <!-- Recent Links -->
+        <div class="recent-section">
+            <h3>📊 Recent Links</h3>
+            <div id="recentLinks" class="recent-list"></div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>⚡ BY HJ-HACKER ⚡</p>
+            <p class="small">Secure • Fast • Trackable</p>
+        </div>
+    </div>
+
+    <!-- QR Code Library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script src="script.js"></script>
+</body>
 </html>
-
