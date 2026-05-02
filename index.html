@@ -3,9 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>HJ-HACKER | Advanced URL Shortener</title>
+    <title>HJ-HACKER | Firebase URL Shortener</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 </head>
 <body>
@@ -18,11 +21,11 @@
             <nav class="nav">
                 <button class="nav-btn active" data-tab="create">📝 Create Link</button>
                 <button class="nav-btn" data-tab="analytics">📊 Analytics</button>
-                <button class="nav-btn" data-tab="media">🖼️ Media Hub</button>
                 <button class="nav-btn" data-tab="recent">🕒 Recent</button>
             </nav>
             <div class="sidebar-footer">
                 <p>⚡ BY HJ-HACKER</p>
+                <p class="firebase-badge">🔥 Firebase Realtime</p>
             </div>
         </aside>
 
@@ -68,18 +71,18 @@
                     </div>
                     <div id="socialSection" class="hidden social-section">
                         <select id="socialIcon" class="input">
-                            <option value="youtube">YouTube</option>
-                            <option value="instagram">Instagram</option>
-                            <option value="twitter">Twitter</option>
-                            <option value="facebook">Facebook</option>
-                            <option value="whatsapp">WhatsApp</option>
-                            <option value="linkedin">LinkedIn</option>
-                            <option value="tiktok">TikTok</option>
+                            <option value="youtube">▶️ YouTube</option>
+                            <option value="instagram">📷 Instagram</option>
+                            <option value="twitter">🐦 Twitter</option>
+                            <option value="facebook">📘 Facebook</option>
+                            <option value="whatsapp">💬 WhatsApp</option>
+                            <option value="linkedin">🔗 LinkedIn</option>
+                            <option value="tiktok">🎵 TikTok</option>
                         </select>
                         <input type="text" id="socialTitle" placeholder="Title (e.g., Follow our channel)" class="input">
                         <input type="url" id="socialUrl" placeholder="Social profile URL" class="input">
-                        <input type="text" id="socialDesc" placeholder="Description (optional)" class="input">
-                        <input type="text" id="socialButton" placeholder="Button text (e.g., Verify & Continue)" class="input" value="Verify & Continue">
+                        <input type="text" id="socialDesc" placeholder="Description" class="input">
+                        <input type="text" id="socialButton" placeholder="Button text" class="input" value="Verify & Continue">
                     </div>
 
                     <!-- Animation Style -->
@@ -134,27 +137,12 @@
             <div id="analyticsTab" class="tab hidden">
                 <div class="card">
                     <h2>📊 Link Analytics</h2>
-                    <div id="analyticsList" class="analytics-list">
-                        <p style="color: #666;">Select a link to view analytics</p>
-                    </div>
+                    <div id="analyticsList" class="analytics-list"></div>
                 </div>
                 <div id="analyticsDetail" class="card hidden">
                     <h3 id="analyticsCode"></h3>
                     <div class="stats-grid" id="statsGrid"></div>
                     <div id="visitorsList" class="visitors-list"></div>
-                </div>
-            </div>
-
-            <!-- Media Hub Tab -->
-            <div id="mediaTab" class="tab hidden">
-                <div class="card">
-                    <h2>🖼️ Media Hub</h2>
-                    <div class="upload-area" id="uploadArea">
-                        <input type="file" id="fileInput" multiple accept="image/*" hidden>
-                        <button id="uploadBtn" class="btn-primary">📤 Upload Images</button>
-                        <p class="upload-hint">or drag & drop images here</p>
-                    </div>
-                    <div id="mediaGrid" class="media-grid"></div>
                 </div>
             </div>
 
