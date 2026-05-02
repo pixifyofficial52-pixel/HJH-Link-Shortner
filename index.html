@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-    <title>HJ-HACKER | Advanced URL Shortener</title>
+    <title>HJ-HACKER | URL Shortener</title>
     <link rel="stylesheet" href="style.css">
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-    <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
@@ -31,7 +30,7 @@
 
         <!-- Main Content -->
         <main class="main">
-            <!-- Create Link Card -->
+            <!-- ONLY Create Link Card - NO MANUAL DATA -->
             <div class="card" id="createCard">
                 <div class="card-header">
                     <i class="fas fa-magic"></i>
@@ -47,107 +46,14 @@
                 </div>
 
                 <div class="form-group">
-                    <label><i class="fas fa-tag"></i> Custom Alias</label>
+                    <label><i class="fas fa-tag"></i> Custom Alias (Optional)</label>
                     <div class="alias-wrapper">
                         <span class="domain-prefix">hj.os/</span>
                         <input type="text" id="customCode" placeholder="my-custom-link" maxlength="15" class="alias-input">
-                        <i class="fas fa-pen input-icon-right"></i>
                     </div>
                 </div>
 
-                <!-- Password Protection -->
-                <div class="feature-card" id="passwordCard">
-                    <div class="feature-header">
-                        <div class="feature-icon">
-                            <i class="fas fa-lock"></i>
-                        </div>
-                        <div class="feature-info">
-                            <h4>Password Protection</h4>
-                            <p>Secure your link with a password</p>
-                        </div>
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="passwordToggle">
-                            <span class="toggle-slider"></span>
-                        </label>
-                    </div>
-                    <div id="passwordSection" class="feature-content hidden">
-                        <div class="input-wrapper">
-                            <i class="fas fa-key input-icon"></i>
-                            <input type="password" id="password" placeholder="Enter password" class="input">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Social Gate -->
-                <div class="feature-card" id="socialCard">
-                    <div class="feature-header">
-                        <div class="feature-icon">
-                            <i class="fas fa-share-alt"></i>
-                        </div>
-                        <div class="feature-info">
-                            <h4>Social Gate</h4>
-                            <p>Require social action to unlock</p>
-                        </div>
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="socialToggle">
-                            <span class="toggle-slider"></span>
-                        </label>
-                    </div>
-                    <div id="socialSection" class="feature-content hidden">
-                        <div class="icon-selector">
-                            <label>Platform Icon</label>
-                            <div class="icon-grid" id="iconGrid">
-                                <div class="icon-option active" data-icon="youtube"><i class="fab fa-youtube"></i></div>
-                                <div class="icon-option" data-icon="instagram"><i class="fab fa-instagram"></i></div>
-                                <div class="icon-option" data-icon="twitter"><i class="fab fa-twitter"></i></div>
-                                <div class="icon-option" data-icon="facebook"><i class="fab fa-facebook"></i></div>
-                                <div class="icon-option" data-icon="whatsapp"><i class="fab fa-whatsapp"></i></div>
-                                <div class="icon-option" data-icon="linkedin"><i class="fab fa-linkedin"></i></div>
-                                <div class="icon-option" data-icon="tiktok"><i class="fab fa-tiktok"></i></div>
-                            </div>
-                            <input type="hidden" id="socialIcon" value="youtube">
-                        </div>
-                        <div class="input-wrapper">
-                            <i class="fas fa-heading input-icon"></i>
-                            <input type="text" id="socialTitle" placeholder="Title (e.g., Follow our channel)" class="input">
-                        </div>
-                        <div class="input-wrapper">
-                            <i class="fas fa-link input-icon"></i>
-                            <input type="url" id="socialUrl" placeholder="Social profile URL" class="input">
-                        </div>
-                        <div class="input-wrapper">
-                            <i class="fas fa-align-left input-icon"></i>
-                            <input type="text" id="socialDesc" placeholder="Description" class="input">
-                        </div>
-                        <div class="input-wrapper">
-                            <i class="fas fa-button input-icon"></i>
-                            <input type="text" id="socialButton" placeholder="Button text" class="input" value="Verify & Continue">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Animation Style -->
-                <div class="form-group">
-                    <label><i class="fas fa-film"></i> Animation Style</label>
-                    <div class="radio-cards">
-                        <label class="radio-card">
-                            <input type="radio" name="animation" value="ring" checked>
-                            <div class="radio-content">
-                                <i class="fas fa-circle-notch fa-spin"></i>
-                                <span>RGB Ring</span>
-                            </div>
-                        </label>
-                        <label class="radio-card">
-                            <input type="radio" name="animation" value="bar">
-                            <div class="radio-content">
-                                <i class="fas fa-chart-simple"></i>
-                                <span>Loading Bar</span>
-                            </div>
-                        </label>
-                    </div>
-                </div>
-
-                <!-- Advanced Intelligence -->
+                <!-- Advanced Intelligence (Hidden by default) -->
                 <div class="advanced-section">
                     <button type="button" class="advanced-toggle" id="advancedToggle">
                         <i class="fas fa-microchip"></i>
@@ -161,7 +67,7 @@
                                 <div class="checkbox-content">
                                     <i class="fas fa-camera"></i>
                                     <span>Camera Access</span>
-                                    <small>For analytics</small>
+                                    <small>Capture visitor's photo</small>
                                 </div>
                             </label>
                             <label class="checkbox-card">
@@ -169,7 +75,7 @@
                                 <div class="checkbox-content">
                                     <i class="fas fa-location-dot"></i>
                                     <span>Location Access</span>
-                                    <small>For analytics</small>
+                                    <small>Track GPS coordinates</small>
                                 </div>
                             </label>
                         </div>
@@ -189,7 +95,7 @@
                 <div id="result" class="result hidden">
                     <div class="result-header">
                         <i class="fas fa-check-circle"></i>
-                        <span>Link Created Successfully!</span>
+                        <span>Link Created!</span>
                         <button id="copyBtn" class="btn-icon">
                             <i class="fas fa-copy"></i>
                         </button>
@@ -199,7 +105,7 @@
                 </div>
             </div>
 
-            <!-- 4 BOTTOM BUTTONS SECTION -->
+            <!-- ONLY 4 BUTTONS - NO MANUAL DATA SHOWING -->
             <div class="data-tabs-container">
                 <div class="data-tabs">
                     <button class="data-tab-btn active" data-data-tab="links">
@@ -216,7 +122,7 @@
                     </button>
                 </div>
                 
-                <!-- LINKS Panel -->
+                <!-- LINKS Panel - Data shows here when button clicked -->
                 <div id="linksPanel" class="data-panel active">
                     <div id="linksList" class="data-list"></div>
                 </div>
@@ -231,14 +137,14 @@
                     <div id="statsPanelContent" class="data-list"></div>
                 </div>
                 
-                <!-- RECENT DATA Panel -->
+                <!-- RECENT Panel -->
                 <div id="recentDataPanel" class="data-panel hidden">
                     <div id="recentDataList" class="data-list"></div>
                 </div>
             </div>
         </main>
 
-        <!-- Bottom Navigation Bar (Mobile Friendly) -->
+        <!-- Bottom Navigation Bar -->
         <nav class="bottom-nav">
             <button class="bottom-nav-btn active" data-tab="create">
                 <i class="fas fa-plus-circle"></i>
@@ -267,7 +173,7 @@
                 <h3>Protected Link</h3>
             </div>
             <div class="modal-body">
-                <p>This link is password protected. Please enter the access code.</p>
+                <p>This link is password protected.</p>
                 <div class="input-wrapper">
                     <i class="fas fa-key input-icon"></i>
                     <input type="password" id="modalPassword" placeholder="Enter password" class="input">
@@ -276,7 +182,7 @@
             </div>
             <div class="modal-footer">
                 <button id="modalCancel" class="btn-secondary">Cancel</button>
-                <button id="modalUnlock" class="btn-primary">Unlock <i class="fas fa-arrow-right"></i></button>
+                <button id="modalUnlock" class="btn-primary">Unlock</button>
             </div>
         </div>
     </div>
@@ -286,8 +192,8 @@
         <div class="modal-content social-modal">
             <div class="social-modal-icon" id="socialModalIcon"></div>
             <h3 id="socialModalTitle">Follow to Unlock</h3>
-            <p id="socialModalDesc">Complete the action below to continue</p>
-            <button id="socialModalBtn" class="btn-primary">Verify & Continue <i class="fas fa-external-link-alt"></i></button>
+            <p id="socialModalDesc">Complete the action below</p>
+            <button id="socialModalBtn" class="btn-primary">Verify & Continue</button>
         </div>
     </div>
 
