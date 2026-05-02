@@ -30,7 +30,7 @@
 
         <!-- Main Content -->
         <main class="main">
-            <!-- ONLY Create Link Card - NO MANUAL DATA -->
+            <!-- ONLY Create Link Card -->
             <div class="card" id="createCard">
                 <div class="card-header">
                     <i class="fas fa-magic"></i>
@@ -53,7 +53,7 @@
                     </div>
                 </div>
 
-                <!-- Advanced Intelligence (Hidden by default) -->
+                <!-- Advanced Intelligence -->
                 <div class="advanced-section">
                     <button type="button" class="advanced-toggle" id="advancedToggle">
                         <i class="fas fa-microchip"></i>
@@ -105,60 +105,36 @@
                 </div>
             </div>
 
-            <!-- ONLY 4 BUTTONS - NO MANUAL DATA SHOWING -->
-            <div class="data-tabs-container">
-                <div class="data-tabs">
-                    <button class="data-tab-btn active" data-data-tab="links">
-                        <i class="fas fa-link"></i> LINKS
-                    </button>
-                    <button class="data-tab-btn" data-data-tab="media">
-                        <i class="fas fa-image"></i> MEDIA
-                    </button>
-                    <button class="data-tab-btn" data-data-tab="stats">
-                        <i class="fas fa-chart-simple"></i> STATS
-                    </button>
-                    <button class="data-tab-btn" data-data-tab="recent-data">
-                        <i class="fas fa-clock"></i> RECENT
-                    </button>
+            <!-- DATA DISPLAY AREA - Shows data when bottom buttons clicked -->
+            <div class="data-display-area" id="dataDisplayArea">
+                <div class="data-display-header" id="dataDisplayHeader">
+                    <i class="fas fa-chart-line"></i>
+                    <span id="dataDisplayTitle">Click any button to view data</span>
                 </div>
-                
-                <!-- LINKS Panel - Data shows here when button clicked -->
-                <div id="linksPanel" class="data-panel active">
-                    <div id="linksList" class="data-list"></div>
-                </div>
-                
-                <!-- MEDIA Panel -->
-                <div id="mediaPanel" class="data-panel hidden">
-                    <div id="mediaList" class="data-list"></div>
-                </div>
-                
-                <!-- STATS Panel -->
-                <div id="statsPanel" class="data-panel hidden">
-                    <div id="statsPanelContent" class="data-list"></div>
-                </div>
-                
-                <!-- RECENT Panel -->
-                <div id="recentDataPanel" class="data-panel hidden">
-                    <div id="recentDataList" class="data-list"></div>
+                <div id="dataDisplayContent" class="data-display-content">
+                    <div class="empty-data">
+                        <i class="fas fa-fingerprint"></i>
+                        <p>Tap on LINKS, STATS, or RECENT button below</p>
+                    </div>
                 </div>
             </div>
         </main>
 
-        <!-- Bottom Navigation Bar -->
+        <!-- ONLY BOTTOM NAVIGATION - 4 Buttons -->
         <nav class="bottom-nav">
             <button class="bottom-nav-btn active" data-tab="create">
                 <i class="fas fa-plus-circle"></i>
                 <span>Create</span>
             </button>
-            <button class="bottom-nav-btn" data-tab="links-bottom">
+            <button class="bottom-nav-btn" data-tab="links">
                 <i class="fas fa-link"></i>
                 <span>Links</span>
             </button>
-            <button class="bottom-nav-btn" data-tab="stats-bottom">
+            <button class="bottom-nav-btn" data-tab="stats">
                 <i class="fas fa-chart-line"></i>
                 <span>Stats</span>
             </button>
-            <button class="bottom-nav-btn" data-tab="recent-bottom">
+            <button class="bottom-nav-btn" data-tab="recent">
                 <i class="fas fa-history"></i>
                 <span>Recent</span>
             </button>
