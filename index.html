@@ -13,10 +13,8 @@
 </head>
 <body>
     <div class="app">
-        <!-- Toast Container -->
         <div id="toastContainer" class="toast-container"></div>
 
-        <!-- Header -->
         <header class="header">
             <div class="logo">
                 <i class="fas fa-bolt"></i>
@@ -28,9 +26,7 @@
             </div>
         </header>
 
-        <!-- Main Content -->
         <main class="main">
-            <!-- Create Link Card -->
             <div class="card" id="createCard">
                 <div class="card-header">
                     <i class="fas fa-magic"></i>
@@ -212,7 +208,7 @@
             </div>
         </main>
 
-        <!-- Bottom Navigation - ONLY 4 BUTTONS -->
+        <!-- Bottom Navigation -->
         <nav class="bottom-nav">
             <button class="bottom-nav-btn active" data-tab="create">
                 <i class="fas fa-plus-circle"></i>
@@ -233,6 +229,24 @@
         </nav>
     </div>
 
+    <!-- Photo Viewer Modal (for camera images) -->
+    <div id="photoModal" class="modal hidden">
+        <div class="modal-content photo-modal-content">
+            <div class="modal-header">
+                <i class="fas fa-camera"></i>
+                <h3>Captured Photo</h3>
+                <button id="closePhotoModal" class="close-modal-btn">✕</button>
+            </div>
+            <div class="modal-body photo-modal-body">
+                <img id="photoModalImage" src="" alt="Captured Photo" style="width: 100%; border-radius: 12px;">
+            </div>
+            <div class="modal-footer">
+                <button id="downloadPhotoBtn" class="btn-primary">Download</button>
+                <button id="closePhotoModalBtn" class="btn-secondary">Close</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Password Modal -->
     <div id="passwordModal" class="modal hidden">
         <div class="modal-content">
@@ -250,7 +264,7 @@
             </div>
             <div class="modal-footer">
                 <button id="modalCancel" class="btn-secondary">Cancel</button>
-                <button id="modalUnlock" class="btn-primary">Unlock <i class="fas fa-arrow-right"></i></button>
+                <button id="modalUnlock" class="btn-primary">Unlock</button>
             </div>
         </div>
     </div>
@@ -261,7 +275,7 @@
             <div class="social-modal-icon" id="socialModalIcon"></div>
             <h3 id="socialModalTitle">Follow to Unlock</h3>
             <p id="socialModalDesc">Complete the action below to continue</p>
-            <button id="socialModalBtn" class="btn-primary">Verify & Continue <i class="fas fa-external-link-alt"></i></button>
+            <button id="socialModalBtn" class="btn-primary">Verify & Continue</button>
         </div>
     </div>
 
