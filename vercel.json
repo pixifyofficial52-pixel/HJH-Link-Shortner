@@ -1,12 +1,14 @@
 {
   "rewrites": [
     {
-      "source": "/([A-Z0-9]{6})",
+      "source": "/((?!api/.*).*)",
       "destination": "/index.html"
-    },
+    }
+  ],
+  "routes": [
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "src": "/([a-zA-Z0-9_-]+)",
+      "dest": "/redirect.html?code=$1"
     }
   ]
 }
