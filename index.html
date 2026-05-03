@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-    <title>HJ-HACKER | Advanced URL Shortener</title>
+    <title>HJ-HACKER | URL Shortener Dashboard</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
@@ -21,7 +21,7 @@
             </div>
             <div class="header-badge">
                 <i class="fas fa-shield-alt"></i>
-                <span>SECURE • FAST • TRACKABLE</span>
+                <span>SECURE • TRACKABLE</span>
             </div>
         </header>
 
@@ -49,11 +49,9 @@
                 </div>
 
                 <!-- Password Protection -->
-                <div class="feature-card" id="passwordCard">
+                <div class="feature-card">
                     <div class="feature-header">
-                        <div class="feature-icon">
-                            <i class="fas fa-lock"></i>
-                        </div>
+                        <div class="feature-icon"><i class="fas fa-lock"></i></div>
                         <div class="feature-info">
                             <h4>Password Protection</h4>
                             <p>Secure your link with a password</p>
@@ -72,11 +70,9 @@
                 </div>
 
                 <!-- Social Gate -->
-                <div class="feature-card" id="socialCard">
+                <div class="feature-card">
                     <div class="feature-header">
-                        <div class="feature-icon">
-                            <i class="fas fa-share-alt"></i>
-                        </div>
+                        <div class="feature-icon"><i class="fas fa-share-alt"></i></div>
                         <div class="feature-info">
                             <h4>Social Gate</h4>
                             <p>Require social action to unlock</p>
@@ -88,7 +84,7 @@
                     </div>
                     <div id="socialSection" class="feature-content hidden">
                         <div class="icon-selector">
-                            <label>Platform Icon</label>
+                            <label><i class="fas fa-icons"></i> Platform Icon</label>
                             <div class="icon-grid" id="iconGrid">
                                 <div class="icon-option active" data-icon="youtube"><i class="fab fa-youtube"></i></div>
                                 <div class="icon-option" data-icon="instagram"><i class="fab fa-instagram"></i></div>
@@ -102,7 +98,7 @@
                         </div>
                         <div class="input-wrapper">
                             <i class="fas fa-heading input-icon"></i>
-                            <input type="text" id="socialTitle" placeholder="Title (e.g., Follow our channel)" class="input">
+                            <input type="text" id="socialTitle" placeholder="Title" class="input">
                         </div>
                         <div class="input-wrapper">
                             <i class="fas fa-link input-icon"></i>
@@ -143,35 +139,26 @@
                 <!-- Advanced Intelligence -->
                 <div class="advanced-section">
                     <button type="button" class="advanced-toggle" id="advancedToggle">
-                        <i class="fas fa-microchip"></i>
-                        <span>Advanced Intelligence</span>
-                        <i class="fas fa-chevron-down"></i>
+                        <i class="fas fa-microchip"></i> Advanced Intelligence <i class="fas fa-chevron-down"></i>
                     </button>
                     <div id="advancedContent" class="advanced-content hidden">
                         <div class="checkbox-group">
-                            <label class="checkbox-card">
+                            <label>
                                 <input type="checkbox" id="captureCamera">
-                                <div class="checkbox-content">
-                                    <i class="fas fa-camera"></i>
-                                    <span>Camera Access</span>
-                                    <small>Capture visitor's photo</small>
-                                </div>
+                                <i class="fas fa-camera"></i> Camera Access
+                                <small>Capture visitor's photo</small>
                             </label>
-                            <label class="checkbox-card">
+                            <label>
                                 <input type="checkbox" id="captureLocation">
-                                <div class="checkbox-content">
-                                    <i class="fas fa-location-dot"></i>
-                                    <span>Location Access</span>
-                                    <small>Track GPS coordinates</small>
-                                </div>
+                                <i class="fas fa-location-dot"></i> Location Access
+                                <small>Track GPS coordinates</small>
                             </label>
                         </div>
                     </div>
                 </div>
 
                 <button id="shortenBtn" class="btn-primary">
-                    <i class="fas fa-bolt"></i>
-                    <span>Create Short Link</span>
+                    <i class="fas fa-bolt"></i> Create Short Link
                 </button>
 
                 <div id="loading" class="loading hidden">
@@ -181,10 +168,9 @@
                 
                 <div id="result" class="result hidden">
                     <div class="result-header">
-                        <i class="fas fa-check-circle"></i>
-                        <span>Link Created!</span>
-                        <button id="copyBtn" class="btn-icon">
-                            <i class="fas fa-copy"></i>
+                        <span><i class="fas fa-check-circle"></i> Link Created!</span>
+                        <button id="copyBtn" class="btn-sm" style="background: transparent;">
+                            <i class="fas fa-copy"></i> Copy
                         </button>
                     </div>
                     <div class="result-link" id="shortLink"></div>
@@ -193,7 +179,7 @@
             </div>
 
             <!-- Data Display Area -->
-            <div class="data-display-area" id="dataDisplayArea">
+            <div class="data-display-area">
                 <div class="data-display-header" id="dataDisplayHeader">
                     <i class="fas fa-chart-line"></i>
                     <span id="dataDisplayTitle">Click any button to view data</span>
@@ -218,7 +204,7 @@
                 <span>Links</span>
             </button>
             <button class="bottom-nav-btn" data-tab="stats">
-                <i class="fas fa-chart-line"></i>
+                <i class="fas fa-chart-simple"></i>
                 <span>Stats</span>
             </button>
             <button class="bottom-nav-btn" data-tab="recent">
@@ -228,25 +214,28 @@
         </nav>
     </div>
 
-    <!-- Photo Viewer Modal -->
+    <!-- Modals -->
     <div id="photoModal" class="modal hidden">
-        <div class="modal-content photo-modal-content">
+        <div class="modal-content">
             <div class="modal-header">
                 <i class="fas fa-camera"></i>
                 <h3>Captured Photo</h3>
                 <button id="closePhotoModal" class="close-modal-btn">✕</button>
             </div>
-            <div class="modal-body photo-modal-body">
-                <img id="photoModalImage" src="" alt="Captured Photo" style="width: 100%; border-radius: 12px;">
+            <div class="modal-body">
+                <img id="photoModalImage" src="" alt="Captured Photo">
             </div>
             <div class="modal-footer">
-                <button id="downloadPhotoBtn" class="btn-primary">Download</button>
-                <button id="closePhotoModalBtn" class="btn-secondary">Close</button>
+                <button id="downloadPhotoBtn" class="btn-primary">
+                    <i class="fas fa-download"></i> Download
+                </button>
+                <button id="closePhotoModalBtn" class="btn-secondary">
+                    <i class="fas fa-times"></i> Close
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- Password Modal -->
     <div id="passwordModal" class="modal hidden">
         <div class="modal-content">
             <div class="modal-header">
@@ -254,7 +243,7 @@
                 <h3>Protected Link</h3>
             </div>
             <div class="modal-body">
-                <p>This link is password protected. Please enter the access code.</p>
+                <p>This link is password protected.</p>
                 <div class="input-wrapper">
                     <i class="fas fa-key input-icon"></i>
                     <input type="password" id="modalPassword" placeholder="Enter password" class="input">
@@ -262,23 +251,23 @@
                 <div id="modalError" class="modal-error hidden"></div>
             </div>
             <div class="modal-footer">
-                <button id="modalCancel" class="btn-secondary">Cancel</button>
-                <button id="modalUnlock" class="btn-primary">Unlock</button>
+                <button id="modalCancel" class="btn-secondary"><i class="fas fa-times"></i> Cancel</button>
+                <button id="modalUnlock" class="btn-primary"><i class="fas fa-unlock-alt"></i> Unlock</button>
             </div>
         </div>
     </div>
 
-    <!-- Social Gate Modal -->
     <div id="socialModal" class="modal hidden">
-        <div class="modal-content social-modal">
-            <div class="social-modal-icon" id="socialModalIcon"></div>
+        <div class="modal-content" style="text-align: center;">
+            <div id="socialModalIcon" style="margin-bottom: 16px;"></div>
             <h3 id="socialModalTitle">Follow to Unlock</h3>
-            <p id="socialModalDesc">Complete the action below to continue</p>
-            <button id="socialModalBtn" class="btn-primary">Verify & Continue</button>
+            <p id="socialModalDesc" style="margin: 8px 0;">Complete the action below</p>
+            <button id="socialModalBtn" class="btn-primary">
+                <i class="fas fa-external-link-alt"></i> Verify & Continue
+            </button>
         </div>
     </div>
 
-    <!-- Delete Confirmation Modal -->
     <div id="deleteModal" class="modal hidden">
         <div class="modal-content">
             <div class="modal-header">
@@ -286,12 +275,14 @@
                 <h3>Delete Link</h3>
             </div>
             <div class="modal-body">
-                <p>Are you sure you want to delete this link? <strong id="deleteLinkCode"></strong></p>
+                <p>Are you sure you want to delete <strong id="deleteLinkCode"></strong>?</p>
                 <p style="color: #ff4444; font-size: 0.7rem;">This action cannot be undone!</p>
             </div>
             <div class="modal-footer">
-                <button id="cancelDeleteBtn" class="btn-secondary">Cancel</button>
-                <button id="confirmDeleteBtn" class="btn-primary" style="background: #ff4444; color: white;">Delete Forever</button>
+                <button id="cancelDeleteBtn" class="btn-secondary"><i class="fas fa-times"></i> Cancel</button>
+                <button id="confirmDeleteBtn" class="btn-primary" style="background: #ff4444;">
+                    <i class="fas fa-trash-alt"></i> Delete Forever
+                </button>
             </div>
         </div>
     </div>
